@@ -36,14 +36,14 @@ class Trainer:
 
     def train(self):
         """_summary_
-        Changes the trainer object and self.model to train model.
+        Changes the trainer object and self.model to train mode.
         """
         self.model.train()
         self._mode = "train"
 
     def eval(self, mode: str):
         """_summary_
-        Changes the trainer object and self.model to eval model.
+        Changes the trainer object and self.model to eval mode.
 
         Args:
             mode (str): Updates the "epoch mode" of the trainer.
