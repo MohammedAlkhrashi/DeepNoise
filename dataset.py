@@ -20,7 +20,7 @@ class NoisyDataset(Dataset):
         item = dict()
 
         if self.is_paths:
-            item["image"] = Image.open(item["image"]).convert("RGB")
+            item["image"] = Image.open(self.images[index]).convert("RGB")
         else:
             item["image"] = self.images[index]
 
