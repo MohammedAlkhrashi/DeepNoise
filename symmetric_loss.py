@@ -12,17 +12,17 @@ import torch.nn.functional as F
 
 
 class SCELoss(nn.Module):
-    def __init__(self, alpha=0.01, beta=1, A=-4, reduction="mean"):
-        """
-        SCE = alpha*CE + beta*RCE, and log(0) is defined to equal A.
-        The default parameters  for alpha,betea and A are taken from the orignal paper.
-        https://arxiv.org/pdf/1908.06112.pdf
+    """
+    ``Loss(t, p) = alpha*CE + beta*RCE`` where log(0) is defined to equal A.
+    The default parameters  for alpha,betea and A are taken from the orignal paper.
+    https://arxiv.org/pdf/1908.06112.pdf
 
-        Args:
-            alpha (float, optional) Defaults to 0.01.
-            beta (int, optional): Defaults to 1.
-            A (int, optional): Defaults to -4.
-        """
+    Args:
+        alpha (float) Defaults to 0.01.
+        beta (int): Defaults to 1.
+        A (int): Defaults to -4.
+    """
+    def __init__(self, alpha=0.01, beta: int = 1, A: int= -4, reduction: "mean" | "sum" = "mean"):
         super().__init__()
         self.alpha = alpha
         self.beta = beta
@@ -52,7 +52,6 @@ class SymmetericLossTrainer(ERM):
         self,
         model: nn.Module,
         optimizer: Optimizer,
-        loss_fn: nn.Module,
         train_loader: DataLoader,
         val_loader: DataLoader,
         test_loader: DataLoader,
@@ -62,6 +61,9 @@ class SymmetericLossTrainer(ERM):
         beta=1,
         A=-4,
     ) -> None:
+
+        loss_fn = SCELoss(alpha, beta, A)
+        
         super().__init__(
             model,
             optimizer,
@@ -72,10 +74,3 @@ class SymmetericLossTrainer(ERM):
             epochs,
             callbacks,
         )
-
-        if self.loss_fn is not None:
-            print(
-                "Warning: When using SCE, the loss function is overwritten by the"
-                " symmetric cross entropy"
-            )
-        self.loss_fn = SCELoss(alpha, beta, A)
