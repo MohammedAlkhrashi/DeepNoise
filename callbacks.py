@@ -1,31 +1,14 @@
+from typing import Dict
 import torch
 
 
-def log_stats(
-    clean_running_correect,
-    noisy_running_correct,
-    clean_running_loss,
-    noisy_running_loss,
-    total_samples,
-    batch_count,
-    epoch_mode,
-):
-    if total_samples == 0:
-        return
-    clean_acc = clean_running_correect / total_samples
-    noisy_acc = noisy_running_correct / total_samples
+def log_stats(stats_dict: Dict[str, float]):
 
-    avg_noisy_loss = noisy_running_loss / batch_count
-    avg_clean_loss = clean_running_loss / batch_count
-
-    # wandb.log({f"{epoch_mode}_clean_accuracy": clean_acc})
-    # wandb.log({f"{epoch_mode}_noisy_accuracy": noisy_acc})
-    # wandb.log({f"{epoch_mode}_noisy_loss": avg_loss)
-    print(f"{epoch_mode}_clean acc = {clean_acc}")
-    print(f"{epoch_mode}_noisy acc = {noisy_acc}")
-
-    print(f"{epoch_mode}_clean_loss = {avg_noisy_loss}")
-    print(f"{epoch_mode}_noisy_loss = {avg_clean_loss}")
+    for stat_name, val in stats_dict.items():
+        # wandb.log({f"{epoch_mode}_clean_accuracy": clean_acc})
+        # wandb.log({f"{epoch_mode}_noisy_accuracy": noisy_acc})
+        # wandb.log({f"{epoch_mode}_noisy_loss": avg_loss)
+        print(f"{stat_name} = {val}")
 
 
 class Callback:
@@ -66,13 +49,20 @@ class SimpleStats:
 
     @torch.no_grad()
     def on_epoch_end(self, metrics):
-        log_stats(
-            self.clean_running_correct,
-            self.noisy_running_correct,
-            self.clean_running_loss,
-            self.noisy_running_loss,
-            self.total_samples,
-            self.batch_count,
-            metrics["epoch_mode"],
-        )
+        if self.total_samples == 0:
+            return
+
+        epoch_mode = metrics["epoch_mode"]
+
+        clean_acc = self.clean_running_correct / self.total_samples
+        noisy_acc = self.noisy_running_correct / self.total_samples
+        avg_clean_loss = self.clean_running_loss / self.batch_count
+        avg_noisy_loss = self.noisy_running_loss / self.batch_count
+
+        stats_dict = dict()
+        stats_dict[f"{epoch_mode}_clean acc"] = clean_acc
+        stats_dict[f"{epoch_mode}_noisy acc"] = noisy_acc
+        stats_dict[f"{epoch_mode}_clean loss"] = avg_clean_loss
+        stats_dict[f"{epoch_mode}_noisy loss"] = avg_noisy_loss
+        log_stats(stats_dict)
         self.reset()
