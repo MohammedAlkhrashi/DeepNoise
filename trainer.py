@@ -46,7 +46,7 @@ class Trainer:
         Changes the trainer object and self.model to eval mode.
 
         Args:
-            mode (str): Updates the "epoch mode" of the trainer.
+            mode (str): Updates the "epoch mode" of the trainer (val/test).
         """
         self.model.eval()
         self._mode = mode
@@ -89,3 +89,16 @@ class Trainer:
                 self.one_epoch(self.val_loader, epoch)
                 self.eval(mode="test")
                 self.one_epoch(self.test_loader, epoch)
+
+
+class MultiStageTrainer:
+    def __init__(
+        self,
+        trainers: List[Trainer],
+    ) -> None:
+        self.trainers = trainers
+
+    def start(self):
+        for i, trainer in enumerate(self.trainers):
+            print(f"Started stage {i+1}")
+            trainer.start()
