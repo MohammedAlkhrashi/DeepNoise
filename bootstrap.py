@@ -18,7 +18,7 @@ class SoftBootstrappingLoss(Module):
 		as_pseudo_label (bool): Stop gradient propagation for the term ``(1 - beta) * p``.
 			Can be interpreted as pseudo-label.
 	"""
-	def __init__(self, beta=0.95, reduction: 'mean' | 'sum' | 'none' = 'mean', as_pseudo_label=True):
+	def __init__(self, beta=0.95, reduction: str = 'mean', as_pseudo_label=True):
 		super(SoftBootstrappingLoss, self).__init__()
 		self.beta = beta
 		self.reduction = reduction
@@ -48,7 +48,7 @@ class HardBootstrappingLoss(Module):
 		beta (float): bootstrap parameter. Default, 0.95
 		reduce (bool): computes mean of the loss. Default, True.
 	"""
-	def __init__(self, beta=0.8, reduction: 'mean' | 'sum' | 'none' = 'mean'):
+	def __init__(self, beta=0.8, reduction: str = 'mean'):
 		super(HardBootstrappingLoss, self).__init__()
 		self.beta = beta
 		self.reduction = reduction
@@ -81,9 +81,9 @@ class BootstrappingLossTrainer(ERM):
 		val_loader: DataLoader,
 		test_loader: DataLoader,
 		epochs: int,
-		bootstrapping: 'soft' | 'hard' = 'soft',
+		bootstrapping: str = 'soft',
 		beta: int = 1,
-		reduction: 'mean' | 'sum' | 'none' = 'mean',
+		reduction: str = 'mean',
 		as_pseudo_label: bool = True,
 		callbacks: List[Callback] = None,
 	) -> None:

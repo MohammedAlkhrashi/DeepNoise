@@ -12,6 +12,7 @@ from erm import ERM
 from torch.utils.data import DataLoader
 
 from symmetric_loss import SymmetericLossTrainer
+from bootstrap import BootstrappingLossTrainer
 
 
 def test_all():
@@ -74,7 +75,6 @@ def test_all():
     trainer = SymmetericLossTrainer(
         model=model,
         optimizer=optim,
-        loss_fn=loss_fn,
         train_loader=train_loader,
         val_loader=val_loader,
         test_loader=test_loader,
@@ -82,7 +82,17 @@ def test_all():
         callbacks=callbacks,
     )
     trainer.start()
-
+    
+    trainer = BootstrappingLossTrainer(
+        model=model,
+        optimizer=optim,
+        train_loader=train_loader,
+        val_loader=val_loader,
+        test_loader=test_loader,
+        epochs=2,
+        callbacks=callbacks,
+    )
+    trainer.start()
 
 if __name__ == "__main__":
     test_all()

@@ -1,6 +1,7 @@
 from typing import List
 
 import torch
+import math
 import torch.nn as nn
 from torch.optim import Optimizer
 from torch.utils.data import DataLoader
@@ -22,11 +23,11 @@ class SCELoss(nn.Module):
         beta (int): Defaults to 1.
         A (int): Defaults to -4.
     """
-    def __init__(self, alpha=0.01, beta: int = 1, A: int= -4, reduction: "mean" | "sum" = "mean"):
+    def __init__(self, alpha=0.01, beta: int = 1, A: int= -4, reduction: str = "mean"):
         super().__init__()
         self.alpha = alpha
         self.beta = beta
-        self.val_before_log_0 = torch.e**A  # log(val_before_log_0) = A
+        self.val_before_log_0 = math.exp(A)  # log(val_before_log_0) = A
 
         self.reduction = reduction
 
@@ -60,10 +61,11 @@ class SymmetericLossTrainer(ERM):
         alpha=0.01,
         beta=1,
         A=-4,
+        reduction: str = "mean"
     ) -> None:
 
-        loss_fn = SCELoss(alpha, beta, A)
-        
+        loss_fn = SCELoss(alpha, beta, A, reduction)
+
         super().__init__(
             model,
             optimizer,
