@@ -18,10 +18,10 @@ class SoftBootstrappingLoss(Module):
 		as_pseudo_label (bool): Stop gradient propagation for the term ``(1 - beta) * p``.
 			Can be interpreted as pseudo-label.
 	"""
-	def __init__(self, beta=0.95, reduce=True, as_pseudo_label=True):
+	def __init__(self, beta=0.95, reduction: 'mean' | 'sum' | None = 'mean', as_pseudo_label=True):
 		super(SoftBootstrappingLoss, self).__init__()
 		self.beta = beta
-		self.reduce = reduce
+		self.reduction = reduction
 		self.as_pseudo_label = as_pseudo_label
 
 	def forward(self, y_pred, y):
@@ -32,8 +32,11 @@ class SoftBootstrappingLoss(Module):
 		# second term = - (1 - beta) * p * log(p)
 		bootstrap = - (1.0 - self.beta) * torch.sum(F.softmax(y_pred_a, dim=1) * F.log_softmax(y_pred, dim=1), dim=1)
 
-		if self.reduce:
+		if self.reduction == 'mean':
 			return torch.mean(beta_xentropy + bootstrap)
+		elif self.reduction == 'sum':
+			return torch.sum(beta_xentropy + bootstrap)
+
 		return beta_xentropy + bootstrap
 
 
@@ -45,10 +48,10 @@ class HardBootstrappingLoss(Module):
 		beta (float): bootstrap parameter. Default, 0.95
 		reduce (bool): computes mean of the loss. Default, True.
 	"""
-	def __init__(self, beta=0.8, reduce=True):
+	def __init__(self, beta=0.8, reduction: 'mean' | 'sum' | None = 'mean'):
 		super(HardBootstrappingLoss, self).__init__()
 		self.beta = beta
-		self.reduce = reduce
+		self.reduction = reduction
 
 	def forward(self, y_pred, y):
 		# cross_entropy = - t * log(p)
@@ -61,8 +64,11 @@ class HardBootstrappingLoss(Module):
 		# second term = (1 - beta) * z * log(p)
 		bootstrap = - (1.0 - self.beta) * bootstrap
 
-		if self.reduce:
+		if self.reduction == 'mean':
 			return torch.mean(beta_xentropy + bootstrap)
+		elif self.reduction == 'sum':
+			return torch.sum(beta_xentropy + bootstrap)
+
 		return beta_xentropy + bootstrap
 
 
@@ -77,15 +83,15 @@ class BootstrappingLossTrainer(ERM):
 		epochs: int,
 		bootstrapping: 'soft' | 'hard' = 'soft',
 		beta: int = 1,
-		reduce: bool = True,
+		reduction: 'mean' | 'sum' | None = 'mean',
 		as_pseudo_label: bool = True,
 		callbacks: List[Callback] = None,
 	) -> None:
 
 		if bootstrapping == 'soft':
-			loss_fn = SoftBootstrappingLoss(beta, reduce, as_pseudo_label)
+			loss_fn = SoftBootstrappingLoss(beta, reduction, as_pseudo_label)
 		else:
-			loss_fn = HardBootstrappingLoss(beta, reduce)
+			loss_fn = HardBootstrappingLoss(beta, reduction)
 
 		
 		super().__init__(
