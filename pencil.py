@@ -34,11 +34,14 @@ class SoftCrossEntropy(nn.Module):
 
 
 # TODO s:
-# 1. Softmax(y) at the right places
-# 2. get num of classes from somewhere
-# 3. Refactor loss calcaution into a method.
-# 4. keep track of stages and update state accordingly
-# 5. Rethink code structure (kinda messy currently)
+# 1. Softmax(y) at the right places [x]
+# 2. get num of classes from somewhere []
+# 3. Refactor loss calcaution into a method. [x]
+# 4. keep track of stages and update state accordingly [?x?]
+# 5. Rethink code structure (kinda messy currently) [x]
+# 6: Learning rate callback.
+
+
 class Pencil(Trainer):
     def __init__(
         self,
@@ -54,6 +57,7 @@ class Pencil(Trainer):
         alpha: float,
         beta: float,
         stages: List[int],
+        num_classes: int,
     ) -> None:
         loss_fn = SoftCrossEntropy()
         super().__init__(
@@ -67,9 +71,6 @@ class Pencil(Trainer):
             callbacks,
         )
 
-        self.learnable_label_dist = self.init_label_dist(training_labels)
-        self.labels_optim = SGD([self.learnable_label_dist], lr=labels_lr)
-
         if len(stages) != 3:
             raise ValueError("Pencil only has 3 stages, but got more than 3 stages")
         if epochs != stages[-1]:
@@ -82,13 +83,27 @@ class Pencil(Trainer):
         self.beta = beta
         self.cur_beta = 0
 
+        self.num_classes = num_classes
+        self.learnable_label_dist = self.init_label_dist(training_labels)
+        self.labels_optim = SGD([self.learnable_label_dist], lr=labels_lr)
+
     def init_label_dist(self, hard_labels):
         num_labels = len(hard_labels)
-        num_classes = 10  # TODO: get this from somewhere
-        label_dist = torch.zeros((num_labels, num_classes))
+        label_dist = torch.zeros((num_labels, self.num_classes))
         for i in range(len(hard_labels)):
             label_dist[i][hard_labels[i]] = 1
         return label_dist
+
+    def calc_loss(self, pred, label_dist, orignal_noisy_label):
+        if isinstance(self.loss_fn, KLDivLoss):  # Stage 2 and 3.
+            pred = torch.log_softmax(pred, dim=1)
+            label_dist = torch.softmax(label_dist, dim=1)
+
+        loss = self.loss_fn(pred, label_dist)
+        compatibility_loss = SoftCrossEntropy()(label_dist, orignal_noisy_label)
+        entropy_loss = entropy(pred)
+        loss = loss + self.cur_alpha * compatibility_loss + self.cur_beta * entropy_loss
+        return loss
 
     def val_step(self, batch):
         label = batch["noisy_label"]
@@ -102,14 +117,9 @@ class Pencil(Trainer):
 
     def train_step(self, batch):
         orignal_noisy_label = batch["noisy_label"]
-        label = self.learnable_label_dist[batch["sample_index"]]
+        label_dist = self.learnable_label_dist[batch["sample_index"]]
         pred = self.model(batch["image"])
-        if isinstance(self.loss_fn, KLDivLoss):
-            pred = torch.log_softmax(pred, dim=1)
-        loss = self.loss_fn(pred, label)
-        compatibility_loss = SoftCrossEntropy()(label, orignal_noisy_label)
-        entropy_loss = entropy(pred)
-        loss = loss + self.cur_alpha * compatibility_loss + self.cur_beta * entropy_loss
+        loss = self.calc_loss(pred, label_dist, orignal_noisy_label)
 
         self.optimizer.zero_grad()
         self.labels_optim.zero_grad()
