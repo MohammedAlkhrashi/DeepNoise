@@ -17,9 +17,6 @@ class BackwardCorrectedLoss(Module):
     def forward(self, pred, target):
         T_inv = torch.linalg.inv(self.T).float()
         num_classes = pred.size(-1)
-        assert (
-            len(T_inv) == num_classes
-        ), "T matrix must be in the form NxN, where N is the number of classes."
         one_hot_target = F.one_hot(target, num_classes=num_classes).float()
         pred_prop = F.softmax(pred, dim=1)
         return -torch.sum(torch.matmul(one_hot_target, T_inv) * torch.log(pred_prop))
@@ -34,9 +31,6 @@ class ForwardCorrectedLoss(Module):
     def forward(self, pred, target):
         T = torch.Tensor(self.T).float()
         num_classes = pred.size(-1)
-        assert (
-            len(T) == num_classes
-        ), "T matrix must be in the form NxN, where N is the number of classes."
         one_hot_target = F.one_hot(target, num_classes=num_classes).float()
         pred_prop = F.softmax(pred, dim=1)
         return -torch.sum(one_hot_target * torch.log(torch.matmul(pred_prop, T)))
