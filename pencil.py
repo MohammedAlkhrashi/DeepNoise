@@ -33,15 +33,6 @@ class SoftCrossEntropyLoss(nn.Module):
         return loss.mean()
 
 
-# TODO s:
-# 1. Softmax(y) at the right places [x]
-# 2. get num of classes from somewhere []
-# 3. Refactor loss calcaution into a method. [x]
-# 4. keep track of stages and update state accordingly [?x?]
-# 5. Rethink code structure (kinda messy currently) [x]
-# 6: Learning rate callback.
-
-
 class Pencil(Trainer):
     def __init__(
         self,
