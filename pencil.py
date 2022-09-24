@@ -56,13 +56,14 @@ class Pencil(Trainer):
             labels_lr (float): learning rate for the labels' optimizer.
             alpha (float): weight of the compatibility loss
             beta (float): weight of the entropy loss
-            stages (List[int]): a list of three integers indicating when each stage.
+            stages (List[int]): a list of three integers indicating when each stage end.
             num_classes (int): the number possible classes for the labels.
         """
         if len(stages) != 3:
             raise ValueError("Pencil only has 3 stages.")
         if epochs != stages[-1]:
-            raise ValueError("Number of epochs should equal the final stage")
+            raise ValueError("The final stage and the total number of epochs shoud"
+                             " be equal.")
 
         loss_fn = SoftCrossEntropyLoss()
         super().__init__(
