@@ -32,7 +32,9 @@ class ERM(Trainer):
             callbacks,
         )
 
+
     def step(self, batch):
+        batch = {key: value.to(self.device) for key, value in batch.items()}
         pred = self.model(batch["image"])
         loss = self.loss_fn(pred, batch["noisy_label"])
 

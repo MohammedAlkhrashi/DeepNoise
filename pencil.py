@@ -76,7 +76,7 @@ class Pencil(Trainer):
             epochs,
             callbacks,
         )
-        self.learnable_label_dist = self.init_label_dist(training_labels, num_classes)
+        self.learnable_label_dist = self.init_label_dist(training_labels, num_classes).to(self.device)
         self.labels_optim = SGD([self.learnable_label_dist], lr=labels_lr)
         self.stages = stages
         self.cur_stage = 1
@@ -138,6 +138,8 @@ class Pencil(Trainer):
         return metrics
 
     def step(self, batch):
+        batch = {key: value.to(self.device) for key, value in batch.items()}
+
         metrics = dict()
         if self.training:
             m = self.train_step(batch)

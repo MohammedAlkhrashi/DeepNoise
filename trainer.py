@@ -32,6 +32,9 @@ class Trainer:
 
         self.callbacks = callbacks
 
+        self.device = torch.device(f"cuda:0" if torch.cuda.is_available() else "cpu")
+        self.model.to(self.device)
+
         self._mode = "train"
 
     def train(self):

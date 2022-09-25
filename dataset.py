@@ -43,7 +43,7 @@ class NoisyDataset(Dataset):
 
 def create_cifar10_dataset(root="./datasets/cifar"):
     batch_size = 128
-    num_workers = 8
+    num_workers = 4
 
     processing_transforms = []
     aug_transforms = []
