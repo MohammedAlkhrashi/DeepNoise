@@ -1,5 +1,6 @@
 import timm
 from torch.optim import SGD
+import torch
 import torchvision.transforms as T
 import torch.nn as nn
 import numpy as np
@@ -13,10 +14,11 @@ from torch.utils.data import DataLoader
 
 from symmetric_loss import SymmetericLossTrainer
 from bootstrap import BootstrappingLossTrainer
+from loss_correction import LossCorrectionTrainer
 
 
 def test_all():
-    model: nn.Module = timm.create_model("resnet18", pretrained=False, num_classes=10)
+    model: nn.Module = timm.create_model("efficientnet_b0", pretrained=False, num_classes=10)
     optim = SGD(model.parameters(), 0.02)
     loss_fn = nn.CrossEntropyLoss()
 
@@ -37,25 +39,13 @@ def test_all():
     test_set = NoisyDataset(test_images, test_labels, test_labels, transforms)
 
     train_loader = DataLoader(
-        train_set,
-        batch_size=2,
-        shuffle=True,
-        num_workers=1,
-        pin_memory=True,
+        train_set, batch_size=2, shuffle=True, num_workers=1, pin_memory=True,
     )
     val_loader = DataLoader(
-        val_set,
-        batch_size=2,
-        shuffle=False,
-        num_workers=1,
-        pin_memory=True,
+        val_set, batch_size=2, shuffle=False, num_workers=1, pin_memory=True,
     )
     test_loader = DataLoader(
-        test_set,
-        batch_size=2,
-        shuffle=False,
-        num_workers=1,
-        pin_memory=True,
+        test_set, batch_size=2, shuffle=False, num_workers=1, pin_memory=True,
     )
 
     callbacks = [SimpleStats()]
@@ -64,6 +54,28 @@ def test_all():
     #     model=model,
     #     optimizer=optim,
     #     loss_fn=loss_fn,
+    #     train_loader=train_loader,
+    #     val_loader=val_loader,
+    #     test_loader=test_loader,
+    #     epochs=2,
+    #     callbacks=callbacks,
+    # )
+    # trainer.start()
+
+    # trainer = SymmetericLossTrainer(
+    #     model=model,
+    #     optimizer=optim,
+    #     train_loader=train_loader,
+    #     val_loader=val_loader,
+    #     test_loader=test_loader,
+    #     epochs=2,
+    #     callbacks=callbacks,
+    # )
+    # trainer.start()
+
+    # trainer = BootstrappingLossTrainer(
+    #     model=model,
+    #     optimizer=optim,
     #     train_loader=train_loader,
     #     val_loader=val_loader,
     #     test_loader=test_loader,
@@ -82,17 +94,21 @@ def test_all():
         callbacks=callbacks,
     )
     trainer.start()
-    
-    trainer = BootstrappingLossTrainer(
-        model=model,
-        optimizer=optim,
-        train_loader=train_loader,
-        val_loader=val_loader,
-        test_loader=test_loader,
-        epochs=2,
-        callbacks=callbacks,
-    )
-    trainer.start()
+
+    # trainer = LossCorrectionTrainer(
+    #     model=model,
+    #     optimizer=optim,
+    #     train_loader=train_loader,
+    #     val_loader=val_loader,
+    #     test_loader=test_loader,
+    #     epochs=2,
+    #     callbacks=callbacks,
+    #     T=torch.eye(10),
+    #     correction='backward'
+
+    # )
+    # trainer.start()
+
 
 if __name__ == "__main__":
     test_all()

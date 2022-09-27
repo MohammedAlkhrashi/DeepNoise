@@ -18,8 +18,7 @@ class BackwardCorrectedLoss(Module):
         T_inv = torch.linalg.inv(self.T).float()
         num_classes = pred.size(-1)
         one_hot_target = F.one_hot(target, num_classes=num_classes).float()
-        pred_prop = F.softmax(pred, dim=1)
-        return -torch.sum(torch.matmul(one_hot_target, T_inv) * torch.log(pred_prop))
+        return -torch.sum(torch.matmul(one_hot_target, T_inv) * torch.log_softmax(pred, dim=1))
 
 
 class ForwardCorrectedLoss(Module):
@@ -32,8 +31,12 @@ class ForwardCorrectedLoss(Module):
         T = torch.Tensor(self.T).float()
         num_classes = pred.size(-1)
         one_hot_target = F.one_hot(target, num_classes=num_classes).float()
-        pred_prop = F.softmax(pred, dim=1)
-        return -torch.sum(one_hot_target * torch.log(torch.matmul(pred_prop, T)))
+
+        pred_prob = F.softmax(pred, dim=1)
+        eps = 1e-10
+        pred_prob = torch.clip(pred_prob, eps, 1.0 - eps)
+
+        return -torch.sum(one_hot_target * torch.log(torch.matmul(pred_prob, T)))
 
 
 class LossCorrectionTrainer(ERM):
