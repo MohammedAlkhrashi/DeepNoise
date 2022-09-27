@@ -1,25 +1,17 @@
 from typing import Dict
 import torch
 
+from DeepNoise.callbacks.base_callback import Callback
+
 
 def log_stats(stats_dict: Dict[str, float]):
 
     for stat_name, val in stats_dict.items():
-        # wandb.log({f"{epoch_mode}_clean_accuracy": clean_acc})
-        # wandb.log({f"{epoch_mode}_noisy_accuracy": noisy_acc})
-        # wandb.log({f"{epoch_mode}_noisy_loss": avg_loss)
+        # wandb.log({stat_name: avg_loss})
         print(f"{stat_name} = {val}")
 
 
-class Callback:
-    def on_step_end(self, metrics):
-        pass
-
-    def on_epoch_end(self, metrics):
-        pass
-
-
-class SimpleStats:
+class SimpleStatistics(Callback):
     def __init__(self) -> None:
         self.reset()
 

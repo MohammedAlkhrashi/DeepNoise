@@ -5,8 +5,8 @@ import torch.nn as nn
 from torch.optim import Optimizer
 from torch.utils.data import DataLoader
 
-from callbacks import Callback
-from trainer import Trainer
+from DeepNoise.callbacks.statistics import Callback
+from DeepNoise.algorithms import Trainer
 
 
 class ERM(Trainer):

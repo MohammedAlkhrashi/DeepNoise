@@ -3,29 +3,26 @@ from torch.optim import SGD
 import torchvision.transforms as T
 import torch.nn as nn
 import numpy as np
-from dataset import NoisyDataset
-from callbacks import Callback, SimpleStats
+from DeepNoise.datasets.dataset_archive import NoisyDataset
+from DeepNoise.callbacks.statistics import Callback, SimpleStatistics
+from DeepNoise.algorithms.erm import ERM
+from DeepNoise.algorithms.pencil import Pencil
+
 import numpy as np
-
-from erm import ERM
-
 from torch.utils.data import DataLoader
 
-from symmetric_loss import SymmetericLossTrainer
-from bootstrap import BootstrappingLossTrainer
-
-
 def test_all():
-    model: nn.Module = timm.create_model("resnet18", pretrained=False, num_classes=10)
-    optim = SGD(model.parameters(), 0.02)
+    model: nn.Module = timm.create_model("efficientnet_b0", pretrained=False, num_classes=10)
+
+    optim = SGD(model.parameters(), 0)
     loss_fn = nn.CrossEntropyLoss()
 
     transforms_list = []
     transforms_list.append(T.ToTensor())
     transforms = T.Compose(transforms_list)
 
-    train_images = np.random.rand(20, 12, 12, 3).astype(np.float32)
-    train_labels = np.random.randint(0, 9, (20,))
+    train_images = np.random.rand(6, 12, 12, 3).astype(np.float32)
+    train_labels = np.random.randint(0, 9, (6,))
     train_set = NoisyDataset(train_images, train_labels, train_labels, transforms)
 
     val_images = np.random.rand(6, 12, 12, 3).astype(np.float32)
@@ -38,27 +35,27 @@ def test_all():
 
     train_loader = DataLoader(
         train_set,
-        batch_size=2,
+        batch_size=3,
         shuffle=True,
         num_workers=1,
-        pin_memory=True,
+        pin_memory=False,
     )
     val_loader = DataLoader(
         val_set,
-        batch_size=2,
+        batch_size=3,
         shuffle=False,
         num_workers=1,
-        pin_memory=True,
+        pin_memory=False,
     )
     test_loader = DataLoader(
         test_set,
-        batch_size=2,
+        batch_size=3,
         shuffle=False,
         num_workers=1,
-        pin_memory=True,
+        pin_memory=False,
     )
 
-    callbacks = [SimpleStats()]
+    callbacks = [SimpleStatistics()]
 
     # trainer = ERM(
     #     model=model,
@@ -72,27 +69,45 @@ def test_all():
     # )
     # trainer.start()
 
-    trainer = SymmetericLossTrainer(
+    # trainer = SymmetericLossTrainer(
+    #     model=model,
+    #     optimizer=optim,
+    #     train_loader=train_loader,
+    #     val_loader=val_loader,
+    #     test_loader=test_loader,
+    #     epochs=2,
+    #     callbacks=callbacks,
+    # )
+    # trainer.start()
+
+    # trainer = BootstrappingLossTrainer(
+    #     model=model,
+    #     optimizer=optim,
+    #     train_loader=train_loader,
+    #     val_loader=val_loader,
+    #     test_loader=test_loader,
+    #     epochs=2,
+    #     callbacks=callbacks,
+    # )
+    # trainer.start()
+
+    trainer = Pencil(
         model=model,
         optimizer=optim,
         train_loader=train_loader,
         val_loader=val_loader,
         test_loader=test_loader,
-        epochs=2,
+        epochs=15,
         callbacks=callbacks,
-    )
-    trainer.start()
-    
-    trainer = BootstrappingLossTrainer(
-        model=model,
-        optimizer=optim,
-        train_loader=train_loader,
-        val_loader=val_loader,
-        test_loader=test_loader,
-        epochs=2,
-        callbacks=callbacks,
+        training_labels=train_labels,
+        labels_lr=2,
+        alpha=0,
+        beta=0.1,
+        stages=[1,12,15],
+        num_classes=10
     )
     trainer.start()
 
 if __name__ == "__main__":
     test_all()
+    

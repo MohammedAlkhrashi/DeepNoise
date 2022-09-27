@@ -23,7 +23,8 @@ class SCELoss(nn.Module):
         beta (int): Defaults to 1.
         A (int): Defaults to -4.
     """
-    def __init__(self, alpha=0.01, beta: int = 1, A: int= -4, reduction: str = "mean"):
+
+    def __init__(self, alpha=0.01, beta: int = 1, A: int = -4, reduction: str = "mean"):
         super().__init__()
         self.alpha = alpha
         self.beta = beta
@@ -61,7 +62,7 @@ class SymmetericLossTrainer(ERM):
         alpha=0.01,
         beta=1,
         A=-4,
-        reduction: str = "mean"
+        reduction: str = "mean",
     ) -> None:
 
         loss_fn = SCELoss(alpha, beta, A, reduction)

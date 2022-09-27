@@ -6,7 +6,7 @@ from torch.optim import Optimizer
 
 from tqdm import tqdm
 
-from callbacks import Callback
+from DeepNoise.callbacks.statistics import Callback
 
 
 class Trainer:

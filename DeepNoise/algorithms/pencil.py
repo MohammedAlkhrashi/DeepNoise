@@ -8,8 +8,8 @@ from tqdm import tqdm
 
 from torch.nn import KLDivLoss, CrossEntropyLoss
 
-from callbacks import Callback
-from trainer import Trainer
+from DeepNoise.callbacks.statistics import Callback
+from DeepNoise.algorithms import Trainer
 
 import torch.nn.functional as F
 

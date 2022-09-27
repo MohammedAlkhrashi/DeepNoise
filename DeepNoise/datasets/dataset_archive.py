@@ -10,6 +10,9 @@ import torchvision.transforms as T
 from torch.utils.data import DataLoader
 
 
+from DeepNoise.noise_injectors import NoiseInjector
+
+
 class NoisyDataset(Dataset):
     def __init__(self, images, clean_labels, noisy_labels, transfroms=None) -> None:
         self.images = images
