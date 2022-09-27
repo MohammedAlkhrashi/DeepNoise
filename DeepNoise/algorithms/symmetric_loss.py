@@ -1,15 +1,14 @@
+import math
 from typing import List
 
 import torch
-import math
 import torch.nn as nn
+import torch.nn.functional as F
 from torch.optim import Optimizer
 from torch.utils.data import DataLoader
 
-from callbacks import Callback
-from erm import ERM
-
-import torch.nn.functional as F
+from DeepNoise.algorithms.erm import ERM
+from DeepNoise.callbacks.statistics import Callback
 
 
 class SCELoss(nn.Module):

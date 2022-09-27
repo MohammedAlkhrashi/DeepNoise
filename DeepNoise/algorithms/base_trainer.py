@@ -1,9 +1,9 @@
 from typing import List
-import torch.nn as nn
-import torch
-from torch.utils.data import DataLoader
-from torch.optim import Optimizer
 
+import torch
+import torch.nn as nn
+from torch.optim import Optimizer
+from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from DeepNoise.callbacks.statistics import Callback

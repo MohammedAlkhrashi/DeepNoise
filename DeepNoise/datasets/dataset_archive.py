@@ -1,14 +1,11 @@
 from copy import copy, deepcopy
+
 import torch
 import torch.nn as nn
-from PIL import Image
-from torch.utils.data import Dataset
-
-from torchvision.datasets import CIFAR10, CIFAR100
 import torchvision.transforms as T
-
-from torch.utils.data import DataLoader
-
+from PIL import Image
+from torch.utils.data import DataLoader, Dataset
+from torchvision.datasets import CIFAR10, CIFAR100
 
 from DeepNoise.noise_injectors import NoiseInjector
 
@@ -44,7 +41,7 @@ class NoisyDataset(Dataset):
         return len(self.images)
 
 
-def create_cifar10_dataset(root="./datasets/cifar"):
+def create_cifar10_dataset(root="./data/cifar"):
     batch_size = 128
     num_workers = 4
 

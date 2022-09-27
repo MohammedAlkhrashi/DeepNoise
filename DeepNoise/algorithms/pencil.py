@@ -2,16 +2,14 @@ from typing import Iterable, List
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
+from torch.nn import CrossEntropyLoss, KLDivLoss
 from torch.optim import SGD, Optimizer
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from torch.nn import KLDivLoss, CrossEntropyLoss
-
-from DeepNoise.callbacks.statistics import Callback
 from DeepNoise.algorithms import Trainer
-
-import torch.nn.functional as F
+from DeepNoise.callbacks.statistics import Callback
 
 
 def entropy(logits):
@@ -62,8 +60,9 @@ class Pencil(Trainer):
         if len(stages) != 3:
             raise ValueError("Pencil only has 3 stages.")
         if epochs != stages[-1]:
-            raise ValueError("The final stage and the total number of epochs shoud"
-                             " be equal.")
+            raise ValueError(
+                "The final stage and the total number of epochs shoud" " be equal."
+            )
 
         loss_fn = SoftCrossEntropyLoss()
         super().__init__(
@@ -76,7 +75,9 @@ class Pencil(Trainer):
             epochs,
             callbacks,
         )
-        self.learnable_label_dist = self.init_label_dist(training_labels, num_classes).to(self.device)
+        self.learnable_label_dist = self.init_label_dist(
+            training_labels, num_classes
+        ).to(self.device)
         self.labels_optim = SGD([self.learnable_label_dist], lr=labels_lr)
         self.stages = stages
         self.cur_stage = 1

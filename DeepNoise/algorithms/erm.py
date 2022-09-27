@@ -5,8 +5,8 @@ import torch.nn as nn
 from torch.optim import Optimizer
 from torch.utils.data import DataLoader
 
-from DeepNoise.callbacks.statistics import Callback
 from DeepNoise.algorithms import Trainer
+from DeepNoise.callbacks.statistics import Callback
 
 
 class ERM(Trainer):
@@ -31,7 +31,6 @@ class ERM(Trainer):
             epochs,
             callbacks,
         )
-
 
     def step(self, batch):
         batch = {key: value.to(self.device) for key, value in batch.items()}

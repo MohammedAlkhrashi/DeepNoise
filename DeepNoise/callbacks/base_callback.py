@@ -1,4 +1,3 @@
-
 class Callback:
     def on_step_end(self, metrics):
         pass

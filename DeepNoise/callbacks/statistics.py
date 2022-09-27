@@ -1,4 +1,5 @@
 from typing import Dict
+
 import torch
 
 from DeepNoise.callbacks.base_callback import Callback

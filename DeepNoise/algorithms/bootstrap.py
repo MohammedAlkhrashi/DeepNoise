@@ -1,10 +1,12 @@
-import torch
 from typing import List
+
+import torch
+import torch.nn.functional as F
 from torch.nn import Module
 from torch.optim import Optimizer
 from torch.utils.data import DataLoader
-import torch.nn.functional as F
-from erm import ERM
+
+from DeepNoise.algorithms.erm import ERM
 from DeepNoise.callbacks import Callback
 
 

@@ -1,18 +1,20 @@
+import numpy as np
 import timm
-from torch.optim import SGD
-import torchvision.transforms as T
 import torch.nn as nn
-import numpy as np
-from DeepNoise.datasets.dataset_archive import NoisyDataset
-from DeepNoise.callbacks.statistics import Callback, SimpleStatistics
-from DeepNoise.algorithms.erm import ERM
-from DeepNoise.algorithms.pencil import Pencil
-
-import numpy as np
+import torchvision.transforms as T
+from torch.optim import SGD
 from torch.utils.data import DataLoader
 
+from DeepNoise.algorithms.erm import ERM
+from DeepNoise.algorithms.pencil import Pencil
+from DeepNoise.callbacks.statistics import Callback, SimpleStatistics
+from DeepNoise.datasets.dataset_archive import NoisyDataset
+
+
 def test_all():
-    model: nn.Module = timm.create_model("efficientnet_b0", pretrained=False, num_classes=10)
+    model: nn.Module = timm.create_model(
+        "efficientnet_b0", pretrained=False, num_classes=10
+    )
 
     optim = SGD(model.parameters(), 0)
     loss_fn = nn.CrossEntropyLoss()
@@ -103,11 +105,11 @@ def test_all():
         labels_lr=2,
         alpha=0,
         beta=0.1,
-        stages=[1,12,15],
-        num_classes=10
+        stages=[1, 12, 15],
+        num_classes=10,
     )
     trainer.start()
 
+
 if __name__ == "__main__":
     test_all()
-    

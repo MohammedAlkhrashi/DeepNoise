@@ -8,6 +8,7 @@ MODELS = Registry()
 def build_dataset(cfg):
     pass
 
+
 def build_loaders(cfg):
     pass
 
@@ -26,6 +27,7 @@ def build_optimizer(cfg):
 
 def build_loss(cfg):
     pass
+
 
 def build_callbacks(cfg):
     pass
