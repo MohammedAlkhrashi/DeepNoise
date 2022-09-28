@@ -123,9 +123,6 @@ class CustomNoiseInjector(NoiseInjector):
 
 
 class IdentityNoiseInjector(NoiseInjector):
-    def __init__(self, noise_prob) -> None:
-        self.noise_prob = noise_prob
-
     def create_noise_transition_matrix(self, num_classes):
         return np.eye(num_classes)
 

@@ -21,5 +21,5 @@ class Registry:
         if name not in self._classes_dict.keys():
             raise ValueError(f"Class key, {name}, does not exist.")
 
-        cls_ = self._classes_dict[name]
-        return cls_(*args, **kwargs)
+        cls = self._classes_dict[name]
+        return cls(*args, **kwargs)
