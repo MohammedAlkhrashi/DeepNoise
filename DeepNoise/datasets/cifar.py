@@ -40,3 +40,6 @@ class NoisyCIFAR10(Dataset):
         item["noisy_label"] = self.noisy_labels[index]
         item["sample_index"] = index
         return item
+
+    def __len__(self):
+        return len(self.images)
