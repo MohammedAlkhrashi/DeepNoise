@@ -41,9 +41,7 @@ class Clothing1M(Dataset):
         item = dict()
 
         image = Image.open(self.paths[index]).convert("RGB")
-        item["image"] = image
-        if self.transforms is not None:
-            item["image"] = self.transforms(imagex)
+        item["image"] = self.transforms(image)
         item["clean_label"] = self.labels[index]
         item["noisy_label"] = self.labels[index]
         item["sample_index"] = index
