@@ -1,14 +1,15 @@
 from copy import deepcopy
 
+from PIL import Image
 from torch.utils.data import Dataset
 from torchvision.datasets import CIFAR10
+from torchvision.transforms.transforms import Compose
 
-from DeepNoise.noise_injectors import (
-    IdentityNoiseInjector,
-    NoiseInjector,
-)
+from DeepNoise.builders import DATASETS
+from DeepNoise.noise_injectors import IdentityNoiseInjector, NoiseInjector
 
 
+@DATASETS.register()
 class NoisyCIFAR10(Dataset):
     def __init__(
         self, noise_injector: NoiseInjector = None, transforms=None, **kwargs
@@ -24,7 +25,7 @@ class NoisyCIFAR10(Dataset):
         if noise_injector is None:
             noise_injector = IdentityNoiseInjector()
         if transforms is None:
-            transforms = lambda x: x
+            transforms = Compose(transforms=[])
 
         dataset = CIFAR10(**kwargs)
         self.images = deepcopy(dataset.data)
@@ -34,8 +35,7 @@ class NoisyCIFAR10(Dataset):
 
     def __getitem__(self, index):
         item = dict()
-
-        item["image"] = self.transforms(self.images[index])
+        item["image"] = self.transforms(Image.fromarray(self.images[index]))
         item["clean_label"] = self.clean_labels[index]
         item["noisy_label"] = self.noisy_labels[index]
         item["sample_index"] = index

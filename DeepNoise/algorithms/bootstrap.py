@@ -7,6 +7,7 @@ from torch.optim import Optimizer
 from torch.utils.data import DataLoader
 
 from DeepNoise.algorithms.erm import ERM
+from DeepNoise.builders import TRAINERS
 from DeepNoise.callbacks import Callback
 
 
@@ -78,6 +79,7 @@ class HardBootstrappingLoss(Module):
         return beta_xentropy + bootstrap
 
 
+@TRAINERS.register("Bootstrapping")
 class BootstrappingLossTrainer(ERM):
     def __init__(
         self,
@@ -92,12 +94,17 @@ class BootstrappingLossTrainer(ERM):
         reduction: str = "mean",
         as_pseudo_label: bool = True,
         callbacks: List[Callback] = None,
+        loss_fn=None,
     ) -> None:
 
         if bootstrapping == "soft":
             loss_fn = SoftBootstrappingLoss(beta, reduction, as_pseudo_label)
-        else:
+        elif bootstrapping == "hard":
             loss_fn = HardBootstrappingLoss(beta, reduction)
+        else:
+            raise ValueError(
+                f"Expected bootstraping = 'soft' or = 'hard', but got '{bootstrapping}'"
+            )
 
         super().__init__(
             model,

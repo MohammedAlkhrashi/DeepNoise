@@ -9,6 +9,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from DeepNoise.algorithms import Trainer
+from DeepNoise.builders import TRAINERS
 from DeepNoise.callbacks.statistics import Callback
 
 
@@ -31,6 +32,7 @@ class SoftCrossEntropyLoss(nn.Module):
         return loss.mean()
 
 
+@TRAINERS.register()
 class Pencil(Trainer):
     def __init__(
         self,

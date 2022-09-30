@@ -7,6 +7,7 @@ from torch.optim import Optimizer
 from torch.utils.data import DataLoader
 
 from DeepNoise.algorithms.erm import ERM
+from DeepNoise.builders import TRAINERS
 from DeepNoise.callbacks import Callback
 
 
@@ -38,6 +39,7 @@ class ForwardCorrectedLoss(Module):
         return -torch.sum(one_hot_target * torch.log(torch.matmul(pred_prop, T)))
 
 
+@TRAINERS.register("LossCorrection")
 class LossCorrectionTrainer(ERM):
     def __init__(
         self,

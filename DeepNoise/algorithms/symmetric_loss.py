@@ -8,6 +8,7 @@ from torch.optim import Optimizer
 from torch.utils.data import DataLoader
 
 from DeepNoise.algorithms.erm import ERM
+from DeepNoise.builders import TRAINERS
 from DeepNoise.callbacks.statistics import Callback
 
 
@@ -48,6 +49,7 @@ class SCELoss(nn.Module):
         return loss
 
 
+@TRAINERS.register("SymmetericLoss")
 class SymmetericLossTrainer(ERM):
     def __init__(
         self,

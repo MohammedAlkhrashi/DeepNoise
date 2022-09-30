@@ -20,7 +20,10 @@ class Registry:
     def build(self, name, *args, **kwargs):
         key = name.lower()
         if key not in self._classes_dict.keys():
-            raise ValueError(f"Class key, {name}, does not exist.")
+            raise ValueError(f"Type '{name}' is not registered.")
 
         cls = self._classes_dict[key]
         return cls(*args, **kwargs)
+
+    def __contains__(self, key):
+        return key.lower() in self._classes_dict

@@ -6,9 +6,11 @@ from torch.optim import Optimizer
 from torch.utils.data import DataLoader
 
 from DeepNoise.algorithms import Trainer
+from DeepNoise.builders import TRAINERS
 from DeepNoise.callbacks.statistics import Callback
 
 
+@TRAINERS.register()
 class ERM(Trainer):
     def __init__(
         self,

@@ -1,5 +1,6 @@
-from torch.utils.data import Dataset
 from PIL import Image
+from torch.utils.data import Dataset
+from torchvision.transforms.transforms import Compose
 
 
 class Clothing1M(Dataset):
@@ -14,7 +15,7 @@ class Clothing1M(Dataset):
             data_root=data_root, map_path=map_path, keys_path=keys_path
         )
         if transforms is None:
-            transforms = lambda x: x
+            transforms = Compose([])
         self.transforms = transforms
 
     def extract_paths_and_labels(self, data_root, map_path, keys_path):
@@ -40,7 +41,9 @@ class Clothing1M(Dataset):
         item = dict()
 
         image = Image.open(self.paths[index]).convert("RGB")
-        item["image"] = self.transforms(image)
+        item["image"] = image
+        if self.transforms is not None:
+            item["image"] = self.transforms(imagex)
         item["clean_label"] = self.labels[index]
         item["noisy_label"] = self.labels[index]
         item["sample_index"] = index

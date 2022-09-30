@@ -2,6 +2,7 @@ from typing import Dict
 
 import torch
 
+from DeepNoise.builders import CALLBACKS
 from DeepNoise.callbacks.base_callback import Callback
 
 
@@ -12,6 +13,7 @@ def log_stats(stats_dict: Dict[str, float]):
         print(f"{stat_name} = {val}")
 
 
+@CALLBACKS.register()
 class SimpleStatistics(Callback):
     def __init__(self) -> None:
         self.reset()
