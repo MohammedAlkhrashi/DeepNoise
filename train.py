@@ -4,7 +4,9 @@ from typing import List
 
 import torch
 import torch.nn as nn
+from matplotlib import transforms
 from torch.utils.data import DataLoader
+import wandb
 
 import DeepNoise.builders as builders
 from DeepNoise.algorithms.base_trainer import Trainer
@@ -76,21 +78,26 @@ def get_config():
     # Data End
 
     cfg["model"] = dict()
-    cfg["model"]["type"] = "resnet18"
+    cfg["model"]["type"] = "resnet34"
     cfg["model"]["pretrained"] = False
 
     cfg["optimizer"] = dict()
     cfg["optimizer"]["type"] = "SGD"
     cfg["optimizer"]["lr"] = 0.02
+    cfg["optimizer"]["weight_decay"] = 0.0005
+    cfg["optimizer"]["momentum"] = 0.9
 
     cfg["loss_fn"] = dict()
     cfg["loss_fn"]["type"] = "CrossEntropyLoss"
 
     cfg["callbacks"] = [dict(type="SimpleStatistics")]
+    cfg["optimizer_callbacks"] = [
+        dict(type="StepLR", milestones=[80, 100], gamma=0.1, last_epoch=-1)
+    ]
 
     cfg["trainer"] = dict()
-    cfg["trainer"]["type"] = "bootstrapping"
-    cfg["trainer"]["bootstrapping"] = "hard"
+    cfg["trainer"]["type"] = "ERM"
+    cfg["trainer"]
 
     cfg = dotdict(cfg)
 
@@ -99,6 +106,7 @@ def get_config():
 
 def main():
     cfg = get_config()
+    wandb.init(project="DeepNoise", entity="elytsn", config=cfg)
 
     trainset = builders.build_dataset(cfg["data"]["trainset"])
     valset = builders.build_dataset(cfg["data"]["valset"])
@@ -133,9 +141,14 @@ def main():
     callbacks: List[Callback] = [
         builders.build_callbacks(callback_cfg) for callback_cfg in cfg.callbacks
     ]
+    callbacks.extend(
+        [
+            builders.build_callbacks(callback_cfg, optimizer=optimizer)
+            for callback_cfg in cfg.optimizer_callbacks
+        ]
+    )
 
     trainer: Trainer = builders.build_trainer(
-        cfg=cfg.trainer,
         model=model,
         optimizer=optimizer,
         loss_fn=loss_fn,
@@ -144,6 +157,7 @@ def main():
         test_loader=test_loader,
         epochs=cfg["epochs"],
         callbacks=callbacks,
+        cfg=cfg.trainer,
     )
     trainer.start()
 
