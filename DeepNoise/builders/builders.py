@@ -1,6 +1,7 @@
 from copy import deepcopy
 
 import torch.nn as nn
+import torchvision.transforms.transforms
 from cv2 import transform
 
 from DeepNoise.builders.registry import Registry
@@ -12,17 +13,20 @@ CALLBACKS = Registry()
 LOSSES = Registry()
 OPTIMIZERS = Registry()
 TRANSFORMS = Registry()
-
-import torchvision.transforms.transforms
+NOISE_INJECTORS = Registry()
 
 
 def _from_registry(registry, cfg):
+    if cfg is None:
+        return None
     cfg = deepcopy(cfg)
     cls_key = cfg.pop("type")
     return registry.build(cls_key, **cfg)
 
 
 def _from_module(module, cfg):
+    if cfg is None:
+        return None
     cfg = deepcopy(cfg)
     cls_key = cfg.pop("type")
     cls = getattr(module, cls_key)
@@ -36,11 +40,17 @@ def build_transforms(cfg):
     return _from_registry(TRANSFORMS, cfg)
 
 
+def build_noise_injector(cfg):
+    return _from_registry(NOISE_INJECTORS, cfg)
+
+
 def build_dataset(cfg):
-    if cfg["transforms"] is not None:
+    if "transforms" in cfg:
         cfg["transforms"] = torchvision.transforms.transforms.Compose(
             [build_transforms(transforms_cfg) for transforms_cfg in cfg["transforms"]]
         )
+    if "noise_injector" in cfg:
+        cfg["noise_injector"] = build_noise_injector(cfg["noise_injector"])
     return _from_registry(DATASETS, cfg)
 
 
@@ -73,7 +83,7 @@ def build_loss(cfg):
 
 
 def build_model(cfg, num_classes):
-    if cfg["type"] not in LOSSES:
+    if cfg["type"] not in MODELS:
         import timm
 
         model_name = cfg.pop("type")

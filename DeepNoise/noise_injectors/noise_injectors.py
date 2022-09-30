@@ -4,6 +4,8 @@ from typing import Dict
 import numpy as np
 from sklearn.metrics import confusion_matrix
 
+from DeepNoise.builders import NOISE_INJECTORS
+
 
 class NoiseInjector:
     """
@@ -45,6 +47,7 @@ class NoiseInjector:
         raise NotImplementedError
 
 
+@NOISE_INJECTORS.register("SymmetricNoise")
 class SymmetricNoiseInjector(NoiseInjector):
     def __init__(self, noise_prob: float, allow_equal_flips: bool = True) -> None:
         """Handles injecting symmetric noise.
@@ -79,6 +82,7 @@ class SymmetricNoiseInjector(NoiseInjector):
         return t_matrix
 
 
+@NOISE_INJECTORS.register("AsymmetricNoise")
 class AsymmetricNoiseInjector(NoiseInjector):
     def __init__(
         self,
@@ -114,6 +118,7 @@ class AsymmetricNoiseInjector(NoiseInjector):
         return t_matrix
 
 
+@NOISE_INJECTORS.register("CustomNoise")
 class CustomNoiseInjector(NoiseInjector):
     def __init__(self, trans_matrix) -> None:
         self.trans_matrix = trans_matrix
@@ -122,6 +127,7 @@ class CustomNoiseInjector(NoiseInjector):
         return self.trans_matrix
 
 
+@NOISE_INJECTORS.register("IdentityNoise")
 class IdentityNoiseInjector(NoiseInjector):
     def create_noise_transition_matrix(self, num_classes):
         return np.eye(num_classes)

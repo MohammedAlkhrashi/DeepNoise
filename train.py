@@ -20,7 +20,7 @@ class dotdict(dict):
 
 
 def get_config():
-    # This should read from a config file and returns a dict
+    # This should read from a config file and return a dict
     cfg = dict()
 
     cfg["batch_size"] = 2
@@ -44,6 +44,7 @@ def get_config():
             std=(0.2023, 0.1994, 0.2010),
         ),
     ]
+    data["trainset"]["noise_injector"] = dict(type="SymmetricNoise", noise_prob=0.4)
 
     data["valset"] = dict()
     data["valset"]["type"] = "NoisyCIFAR10"
