@@ -55,12 +55,13 @@ def build_dataset(cfg):
 
 
 def build_trainer(cfg, **kwargs):
-    combined_cfg: dict = {**cfg, **kwargs}
+    combined_cfg = {**cfg, **kwargs}
     return _from_registry(TRAINERS, combined_cfg)
 
 
-def build_callbacks(cfg):
-    return _from_registry(CALLBACKS, cfg)
+def build_callbacks(cfg, **kwargs):
+    combined_cfg = {**cfg, **kwargs}
+    return _from_registry(CALLBACKS, combined_cfg)
 
 
 def build_optimizer(cfg, model: nn.Module):

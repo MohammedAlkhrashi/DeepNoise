@@ -79,6 +79,7 @@ class Trainer:
             self.step(batch)
 
         metrics = dict()
+        metrics["epoch"] = epoch
         metrics["epoch_mode"] = self.epoch_mode
         [callback.on_epoch_end(metrics) for callback in self.callbacks]
 
@@ -92,16 +93,3 @@ class Trainer:
                 self.one_epoch(self.val_loader, epoch)
                 self.eval(mode="test")
                 self.one_epoch(self.test_loader, epoch)
-
-
-class MultiStageTrainer:
-    def __init__(
-        self,
-        trainers: List[Trainer],
-    ) -> None:
-        self.trainers = trainers
-
-    def start(self):
-        for i, trainer in enumerate(self.trainers):
-            print(f"Started stage {i+1}")
-            trainer.start()
