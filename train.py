@@ -36,6 +36,7 @@ def get_config():
     data["trainset"]["type"] = "NoisyCIFAR10"
     data["trainset"]["train"] = True
     data["trainset"]["root"] = "data"
+    data["trainset"]["download"] = True
     data["trainset"]["transforms"] = [
         dict(type="RandomCrop", size=32, padding=4, padding_mode="reflect"),
         dict(type="RandomHorizontalFlip"),
@@ -52,6 +53,7 @@ def get_config():
     data["valset"]["type"] = "NoisyCIFAR10"
     data["valset"]["train"] = False
     data["valset"]["root"] = "data"
+    data["valset"]["download"] = True
     data["valset"]["transforms"] = [
         dict(type="ToTensor"),
         dict(
@@ -65,6 +67,7 @@ def get_config():
     data["testset"]["type"] = "NoisyCIFAR10"
     data["testset"]["train"] = False
     data["testset"]["root"] = "data"
+    data["testset"]["download"] = True
     data["testset"]["transforms"] = [
         dict(type="ToTensor"),
         dict(
