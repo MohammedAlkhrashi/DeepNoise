@@ -16,11 +16,12 @@ from DeepNoise.callbacks.statistics import Callback
 
 
 def main():
-    wandb.init(project="DeepNoise", entity="elytsn", config=cfg)
 
     args = Namespace()
     args.path = "configs/algorithms/default_erm.py"
     cfg = build_cfg(args.path)
+
+    wandb.init(project="DeepNoise", entity="elytsn", config=cfg)
 
     trainset = builders.build_dataset(cfg["data"]["trainset"])
     valset = builders.build_dataset(cfg["data"]["valset"])
@@ -47,18 +48,18 @@ def main():
         batch_size=cfg["batch_size"],
         num_workers=cfg["num_workers"],
     )
-    model: nn.Module = builders.build_model(cfg.model, cfg["num_classes"])
+    model: nn.Module = builders.build_model(cfg["model"], cfg["num_classes"])
     optimizer: torch.optim.Optimizer = builders.build_optimizer(
-        cfg.optimizer, model=model
+        cfg["optimizer"], model=model
     )
-    loss_fn: nn.Module = builders.build_loss(cfg.loss_fn)
+    loss_fn: nn.Module = builders.build_loss(cfg["loss_fn"])
     callbacks: List[Callback] = [
-        builders.build_callbacks(callback_cfg) for callback_cfg in cfg.callbacks
+        builders.build_callbacks(callback_cfg) for callback_cfg in cfg["callbacks"]
     ]
     callbacks.extend(
         [
             builders.build_callbacks(callback_cfg, optimizer=optimizer)
-            for callback_cfg in cfg.optimizer_callbacks
+            for callback_cfg in cfg["optimizer_callbacks"]
         ]
     )
 
@@ -71,7 +72,7 @@ def main():
         test_loader=test_loader,
         epochs=cfg["epochs"],
         callbacks=callbacks,
-        cfg=cfg.trainer,
+        cfg=cfg["trainer"],
     )
     trainer.start()
 
