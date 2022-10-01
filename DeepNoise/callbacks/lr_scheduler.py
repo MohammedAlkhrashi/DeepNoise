@@ -16,13 +16,15 @@ class StepLRScheduler(Callback):
 
     def on_epoch_end(self, metrics):
         epoch_mode = metrics["epoch_mode"]
+        epoch = metrics["epoch"]
         if epoch_mode != "train":
             return
 
         self.scheduler.step()
 
         cur_lr = self.scheduler.get_last_lr()[0]
-        wandb.log({"learning_rate": cur_lr})
+        print(f"Current LR is: {cur_lr}")
+        wandb.log({"learning_rate": cur_lr, "epoch": epoch})
 
     def on_training_end(self, metrics):
         pass

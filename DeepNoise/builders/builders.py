@@ -1,4 +1,5 @@
 from copy import deepcopy
+import runpy
 
 import torch.nn as nn
 import torchvision.transforms.transforms
@@ -17,18 +18,31 @@ NOISE_INJECTORS = Registry()
 
 
 def _from_registry(registry, cfg):
-    if cfg is None:
+    if cfg is None or cfg["type"] is None:
         return None
     cls_key = cfg.pop("type")
     return registry.build(cls_key, **cfg)
 
 
 def _from_module(module, cfg):
-    if cfg is None:
+    if cfg is None or cfg["type"] is None:
         return None
     cls_key = cfg.pop("type")
     cls = getattr(module, cls_key)
     return cls(**cfg)
+
+
+def build_cfg(path: str):
+    class dotdict(dict):
+        """dot.notation access to dictionary attributes"""
+
+        __getattr__ = dict.__getitem__
+        __setattr__ = dict.__setitem__
+        __delattr__ = dict.__delitem__
+
+    config_file = runpy.run_path(path)
+    cfg = config_file["cfg"]
+    return dotdict(cfg)
 
 
 def build_transforms(cfg):
