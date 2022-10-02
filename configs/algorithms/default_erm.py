@@ -11,7 +11,6 @@ cfg["epochs"] = 5
 
 cfg["model"] = dict()
 cfg["model"]["type"] = "resnet34"
-cfg["model"]["pretrained"] = False
 
 cfg["optimizer"] = dict()
 cfg["optimizer"]["type"] = "SGD"

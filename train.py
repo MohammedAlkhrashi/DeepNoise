@@ -1,4 +1,5 @@
 from argparse import Namespace
+import argparse
 from doctest import testsource
 from gc import callbacks
 from typing import List
@@ -15,13 +16,19 @@ from DeepNoise.builders.builders import build_cfg
 from DeepNoise.callbacks.statistics import Callback
 
 
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--cfg_path", type=str)
+    args = parser.parse_args()
+    return args
+
+
 def main():
 
-    args = Namespace()
-    args.path = "configs/algorithms/default_erm.py"
-    cfg = build_cfg(args.path)
+    args = parse_args()
+    cfg = build_cfg(args.cfg_path)
 
-    wandb.init(project="DeepNoise", entity="elytsn", config=cfg)
+    wandb.init(project="DeepNoise", config=cfg)
 
     trainset = builders.build_dataset(cfg["data"]["trainset"])
     valset = builders.build_dataset(cfg["data"]["valset"])
