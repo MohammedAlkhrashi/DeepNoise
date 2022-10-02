@@ -2,6 +2,7 @@ from copy import deepcopy
 from venv import create
 
 from PIL import Image
+from sklearn.metrics import confusion_matrix
 from torch.utils.data import Dataset
 import torchvision.datasets
 from torchvision.transforms.transforms import Compose
@@ -32,9 +33,12 @@ class NoisyCIFAR10(Dataset):
         self.images = deepcopy(dataset.data)
         self.clean_labels = deepcopy(dataset.targets)
         self.noisy_labels = noise_injector.apply(self.clean_labels)
+        print(
+            confusion_matrix(self.clean_labels, self.noisy_labels) / len(self) * 10
+        )  # TODO only works for cifar10
         self.transforms = transforms
 
-    def create_dataset(self,**kwargs):
+    def create_dataset(self, **kwargs):
         return torchvision.datasets.CIFAR10(**kwargs)
 
     def __getitem__(self, index):
@@ -49,10 +53,11 @@ class NoisyCIFAR10(Dataset):
         return len(self.images)
 
 
-
 @DATASETS.register()
 class NoisyCIFAR100(NoisyCIFAR10):
-    def __init__(self, noise_injector: NoiseInjector = None, transforms=None, **kwargs) -> None:
+    def __init__(
+        self, noise_injector: NoiseInjector = None, transforms=None, **kwargs
+    ) -> None:
         super().__init__(noise_injector, transforms, **kwargs)
         """
         Args:
@@ -62,6 +67,6 @@ class NoisyCIFAR100(NoisyCIFAR10):
             transforms: The transformation pipeline that will be applied to the images.
             **kwargs: torchvision.datasets.CIFAR100 arguments (keyword arguments)
         """
-    def create_dataset(self,**kwargs):
+
+    def create_dataset(self, **kwargs):
         return torchvision.datasets.CIFAR100(**kwargs)
-        

@@ -88,12 +88,13 @@ def build_loss(cfg):
     return _from_registry(LOSSES, cfg)
 
 
-def build_model(cfg, num_classes):
+def build_model(cfg, **kwargs):
+    combined_cfg = {**cfg, **kwargs}
     if cfg["type"] not in MODELS:
         import timm
 
         model_name = cfg.pop("type")
-        model = timm.create_model(model_name, num_classes=num_classes, **cfg)
+        model = timm.create_model(model_name, **combined_cfg)
         return model
 
-    return _from_registry(MODELS, cfg)
+    return _from_registry(MODELS, combined_cfg)
