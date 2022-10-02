@@ -33,16 +33,9 @@ def _from_module(module, cfg):
 
 
 def build_cfg(path: str):
-    class dotdict(dict):
-        """dot.notation access to dictionary attributes"""
-
-        __getattr__ = dict.__getitem__
-        __setattr__ = dict.__setitem__
-        __delattr__ = dict.__delitem__
-
     config_file = runpy.run_path(path)
     cfg = config_file["cfg"]
-    return dotdict(cfg)
+    return cfg
 
 
 def build_transforms(cfg):
