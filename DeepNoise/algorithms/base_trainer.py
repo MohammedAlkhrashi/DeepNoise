@@ -38,14 +38,14 @@ class Trainer:
         self._mode = "train"
 
     def train(self):
-        """_summary_
+        """
         Changes the trainer object and self.model to train mode.
         """
         self.model.train()
         self._mode = "train"
 
     def eval(self, mode: str):
-        """_summary_
+        """
         Changes the trainer object and self.model to eval mode.
 
         Args:
@@ -60,8 +60,7 @@ class Trainer:
 
     @property
     def epoch_mode(self) -> str:
-        """_summary_
-
+        """
         Returns:
             str: the current epoch mode of the trainer, the epoch mode is used for logging.
         """

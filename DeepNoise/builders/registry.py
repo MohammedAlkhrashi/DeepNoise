@@ -25,5 +25,7 @@ class Registry:
         cls = self._classes_dict[key]
         return cls(*args, **kwargs)
 
-    def __contains__(self, key):
+    def __contains__(self, key: str):
+        if key is None:
+            return False
         return key.lower() in self._classes_dict

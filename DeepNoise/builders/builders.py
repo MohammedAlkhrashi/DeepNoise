@@ -1,4 +1,5 @@
 from copy import deepcopy
+import runpy
 
 import torch.nn as nn
 import torchvision.transforms.transforms
@@ -17,20 +18,24 @@ NOISE_INJECTORS = Registry()
 
 
 def _from_registry(registry, cfg):
-    if cfg is None:
+    if cfg is None or cfg["type"] is None:
         return None
-    cfg = deepcopy(cfg)
     cls_key = cfg.pop("type")
     return registry.build(cls_key, **cfg)
 
 
 def _from_module(module, cfg):
-    if cfg is None:
+    if cfg is None or cfg["type"] is None:
         return None
-    cfg = deepcopy(cfg)
     cls_key = cfg.pop("type")
     cls = getattr(module, cls_key)
     return cls(**cfg)
+
+
+def build_cfg(path: str):
+    config_file = runpy.run_path(path)
+    cfg = config_file["cfg"]
+    return cfg
 
 
 def build_transforms(cfg):
@@ -65,7 +70,7 @@ def build_callbacks(cfg, **kwargs):
 
 
 def build_optimizer(cfg, model: nn.Module):
-    cfg["params"] = list(model.parameters())
+    cfg["params"] = model.parameters()
     if cfg["type"] not in OPTIMIZERS:
         import torch.optim
 

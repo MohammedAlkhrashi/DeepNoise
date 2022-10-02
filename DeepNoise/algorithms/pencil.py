@@ -1,4 +1,4 @@
-from typing import Iterable, List
+from typing import Iterable, List, Union
 
 import torch
 import torch.nn as nn
@@ -43,22 +43,36 @@ class Pencil(Trainer):
         test_loader: DataLoader,
         epochs: int,
         callbacks: List[Callback],
-        training_labels: Iterable,
+        training_labels: Union[Iterable, str],
         labels_lr: float,
         alpha: float,
         beta: float,
         stages: List[int],
         num_classes: int,
+        ignore_passed_loss_fn=False,
+        **kwargs,
     ) -> None:
         """
         Args:
-            training_labels (Iterable): The the training labels, which will be directely learned during the second stage
+            training_labels (Iterable | str): The the training labels,
+            which will be directely learned during the second stage.
+            If training_labels is str then it will be used as the as the
+            attribute name of the training labels in the provided dataset.
             labels_lr (float): learning rate for the labels' optimizer.
             alpha (float): weight of the compatibility loss
             beta (float): weight of the entropy loss
             stages (List[int]): a list of three integers indicating when each stage end.
             num_classes (int): the number possible classes for the labels.
         """
+
+        passed_loss_fn = kwargs.pop("loss_fn", None)
+        if passed_loss_fn is not None and not ignore_passed_loss_fn:
+            raise ValueError(
+                "Pencil  trainer does not accept"
+                " a loss_fn arguement that is not None when"
+                " 'ignore_passed_loss_fn' is False"
+            )
+
         if len(stages) != 3:
             raise ValueError("Pencil only has 3 stages.")
         if epochs != stages[-1]:
@@ -77,6 +91,8 @@ class Pencil(Trainer):
             epochs,
             callbacks,
         )
+        if isinstance(training_labels, str):
+            training_labels = getattr(self.train_loader.dataset, training_labels)
         self.learnable_label_dist = self.init_label_dist(
             training_labels, num_classes
         ).to(self.device)
