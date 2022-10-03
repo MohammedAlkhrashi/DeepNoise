@@ -9,9 +9,6 @@ class Registry:
             else:
                 key = cls.__name__
             key = key.lower()
-            if key in self._classes_dict.keys():
-                raise ValueError(f"A class with key: {name}, already registered")
-
             self._classes_dict[key] = cls
             return cls
 
