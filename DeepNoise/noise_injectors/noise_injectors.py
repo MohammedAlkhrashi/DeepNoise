@@ -130,7 +130,7 @@ class CustomNoiseInjector(NoiseInjector):
 
         if not (
             np.allclose((np.sum(transition_matrix, axis=0)), 1)
-            and np.allclose((np.sum(transition_matrix, axis=1)))
+            and np.allclose((np.sum(transition_matrix, axis=1)), 1)
         ):
             raise ValueError(
                 "Rows and columns of the transition matrix must sum to one."
@@ -150,15 +150,18 @@ class IdentityNoiseInjector(NoiseInjector):
 
 if __name__ == "__main__":
     # Temporary testing location
-    # labels = [[i] * 100 for i in range(10)]
-    # labels = np.array(labels).flatten()
-    # total_cm = np.zeros((10, 10))
-    # trails = 10
-    # for i in range(trails):
-    #     noise_injector = SymmetricNoiseInjector(noise_prob=0.6, allow_equal_flips=True)
-    #     noisy_labels = noise_injector.apply(labels)
-    #     total_cm += confusion_matrix(labels, noisy_labels) / 100
 
-    # print(total_cm / trails)
+    CustomNoiseInjector(SymmetricNoiseInjector(0.4).create_noise_transition_matrix(23))
+    CustomNoiseInjector(AsymmetricNoiseInjector(0.4).create_noise_transition_matrix(44))
 
-    CustomNoiseInjector([2])
+    labels = [[i] * 100 for i in range(10)]
+    labels = np.array(labels).flatten()
+    total_cm = np.zeros((10, 10))
+    trails = 10
+    for i in range(trails):
+        noise_injector = SymmetricNoiseInjector(noise_prob=0.6, allow_equal_flips=True)
+        noisy_labels = noise_injector.apply(labels)
+        total_cm += confusion_matrix(labels, noisy_labels) / 100
+
+    print(total_cm / trails)
+
