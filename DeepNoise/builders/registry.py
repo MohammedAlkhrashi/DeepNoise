@@ -9,9 +9,6 @@ class Registry:
             else:
                 key = cls.__name__
             key = key.lower()
-            if key in self._classes_dict.keys():
-                raise ValueError(f"A class with key: {name}, already registered")
-
             self._classes_dict[key] = cls
             return cls
 
@@ -25,5 +22,7 @@ class Registry:
         cls = self._classes_dict[key]
         return cls(*args, **kwargs)
 
-    def __contains__(self, key):
+    def __contains__(self, key: str):
+        if key is None:
+            return False
         return key.lower() in self._classes_dict

@@ -64,7 +64,17 @@ class SymmetericLossTrainer(ERM):
         beta=1,
         A=-4,
         reduction: str = "mean",
+        ignore_passed_loss_fn=False,
+        **kwargs
     ) -> None:
+
+        passed_loss_fn = kwargs.pop("loss_fn", None)
+        if passed_loss_fn is not None and not ignore_passed_loss_fn:
+            raise ValueError(
+                "SymmetricLoss trainer does not accept"
+                " a loss_fn arguement that is not None when"
+                " 'ignored_passed_loss_fn' is False"
+            )
 
         loss_fn = SCELoss(alpha, beta, A, reduction)
 

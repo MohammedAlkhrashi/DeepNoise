@@ -120,11 +120,26 @@ class AsymmetricNoiseInjector(NoiseInjector):
 
 @NOISE_INJECTORS.register("CustomNoise")
 class CustomNoiseInjector(NoiseInjector):
-    def __init__(self, trans_matrix) -> None:
-        self.trans_matrix = trans_matrix
+    def __init__(self, transition_matrix) -> None:
+        transition_matrix = np.array(transition_matrix)
+        if not (
+            transition_matrix.ndim == 2
+            and transition_matrix.shape[0] == transition_matrix.shape[1]
+        ):
+            raise ValueError("transition_matrix must me a square matrix.")
+
+        if not (
+            np.allclose((np.sum(transition_matrix, axis=0)), 1)
+            and np.allclose((np.sum(transition_matrix, axis=1)), 1)
+        ):
+            raise ValueError(
+                "Rows and columns of the transition matrix must sum to one."
+            )
+
+        self.transition_matrix = transition_matrix
 
     def create_noise_transition_matrix(self, num_classes):
-        return self.trans_matrix
+        return self.transition_matrix
 
 
 @NOISE_INJECTORS.register("IdentityNoise")
@@ -135,6 +150,10 @@ class IdentityNoiseInjector(NoiseInjector):
 
 if __name__ == "__main__":
     # Temporary testing location
+
+    CustomNoiseInjector(SymmetricNoiseInjector(0.4).create_noise_transition_matrix(23))
+    CustomNoiseInjector(AsymmetricNoiseInjector(0.4).create_noise_transition_matrix(44))
+
     labels = [[i] * 100 for i in range(10)]
     labels = np.array(labels).flatten()
     total_cm = np.zeros((10, 10))
@@ -145,3 +164,4 @@ if __name__ == "__main__":
         total_cm += confusion_matrix(labels, noisy_labels) / 100
 
     print(total_cm / trails)
+

@@ -52,7 +52,17 @@ class LossCorrectionTrainer(ERM):
         T,
         correction: str = "backward",
         callbacks: List[Callback] = None,
+        ignore_passed_loss_fn=False,
+        **kwargs,
     ) -> None:
+
+        passed_loss_fn = kwargs.pop("loss_fn", None)
+        if passed_loss_fn is not None and not ignore_passed_loss_fn:
+            raise ValueError(
+                "LossCorrection trainer does not accept"
+                " a loss_fn arguement that is not None when"
+                " 'ignore_passed_loss_fn' is False"
+            )
 
         if correction == "backward":
             loss_fn = BackwardCorrectedLoss(T)
