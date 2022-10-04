@@ -29,6 +29,7 @@ class Trainer:
         self.val_loader = val_loader
         self.test_loader = test_loader
         self.epochs = epochs
+        self.cur_epoch = -1
 
         self.callbacks = callbacks
 
@@ -71,6 +72,7 @@ class Trainer:
         raise NotImplementedError
 
     def one_epoch(self, loader: DataLoader, epoch: int):
+        self.cur_epoch += 1
         for batch in tqdm(
             loader,
             desc=f"Running {self.epoch_mode.capitalize()}, Epoch: {epoch}",
@@ -93,3 +95,13 @@ class Trainer:
                 self.one_epoch(self.val_loader, epoch)
                 self.eval(mode="test")
                 self.one_epoch(self.test_loader, epoch)
+
+
+class MultiStageTrainer:
+    def __init__(self, trainers: List[Trainer],) -> None:
+        self.trainers = trainers
+
+    def start(self):
+        for i, trainer in enumerate(self.trainers):
+            print(f"Started stage {i+1}")
+            trainer.start()
