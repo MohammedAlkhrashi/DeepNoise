@@ -22,6 +22,10 @@ def entropy(logits):
 
 
 class SoftCrossEntropyLoss(nn.Module):
+    def __init__(self, reduction="mean") -> None:
+        super().__init__()
+        self.reduction = reduction
+
     def forward(self, x, y):
         if len(y.shape) == 1:
             assert y.size(0) == x.size(0)
@@ -29,7 +33,13 @@ class SoftCrossEntropyLoss(nn.Module):
             y = F.one_hot(y, num_classes=num_classes).float()
 
         loss = -torch.sum(y * torch.log_softmax(x, dim=1), dim=1)
-        return loss.mean()
+
+        if self.reduction == "sum":
+            loss = loss.sum()
+        elif self.reduction == "mean":
+            loss = loss.mean()
+
+        return loss
 
 
 @TRAINERS.register()

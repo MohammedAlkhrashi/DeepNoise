@@ -2,7 +2,6 @@ from copy import copy
 from typing import Dict
 
 import numpy as np
-from sklearn.metrics import confusion_matrix
 
 from DeepNoise.builders import NOISE_INJECTORS
 
