@@ -12,7 +12,7 @@ class NoiseInjector:
     implement the method create_noise_transition_matrix.
     """
 
-    def apply(self, labels, num_classes: int = None):
+    def apply(self, labels, num_classes: int = None) -> np.array:
         """
         Returns noisy labels by flipping some of the given labels probabilisticly
         based on the noise transition matrix.
@@ -117,8 +117,8 @@ class AsymmetricNoiseInjector(NoiseInjector):
         return t_matrix
 
 
-@NOISE_INJECTORS.register("CustomNoise")
-class CustomNoiseInjector(NoiseInjector):
+@NOISE_INJECTORS.register("CustomMatrixNoiseInjector")
+class CustomMatrixNoiseInjector(NoiseInjector):
     def __init__(self, transition_matrix) -> None:
         transition_matrix = np.array(transition_matrix)
         if not (
@@ -138,7 +138,28 @@ class CustomNoiseInjector(NoiseInjector):
         self.transition_matrix = transition_matrix
 
     def create_noise_transition_matrix(self, num_classes):
+        if num_classes > self.transition_matrix.shape[0]:
+            raise ValueError(
+                "Number of classes cannot be larger than the number"
+                " of rows of the transition matrix"
+            )
+
         return self.transition_matrix
+
+
+@NOISE_INJECTORS.register("CustomLabelsNoiseInjector")
+class CustomLabelsNoiseInjector(NoiseInjector):
+    def __init__(self, noisy_labels) -> None:
+        super().__init__()
+        self.noisy_labels = np.array(noisy_labels)
+
+    def apply(self, labels, num_classes: int = None) -> np.array:
+        if len(labels) != len(self.noisy_labels):
+            raise ValueError(
+                f"len of the given labels ({len(labels)}) must equal the len"
+                f" of the noisy labels ({len(self.noisy_labels)})"
+            )
+        return self.noisy_labels
 
 
 @NOISE_INJECTORS.register("IdentityNoise")
