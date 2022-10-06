@@ -27,16 +27,16 @@ class NoiseInjector:
             np.array: the noisy labels
         """
         labels = np.array(labels, dtype=int)
-        noisy_labels = np.copy(labels)
         classes = np.unique(labels)
         if num_classes is None:
             num_classes = len(classes)
-
         if num_classes <= 1:
             raise ValueError(
                 f"num_classes must be greater than 1, but num_classes = {num_classes}"
             )
         t_matrix = self.create_noise_transition_matrix(num_classes)
+
+        noisy_labels = np.copy(labels)
         for i, label in enumerate(labels):
             noise_transition_row = t_matrix[label]
             noisy_labels[i] = np.random.choice(classes, p=noise_transition_row)
@@ -146,22 +146,3 @@ class CustomNoiseInjector(NoiseInjector):
 class IdentityNoiseInjector(NoiseInjector):
     def create_noise_transition_matrix(self, num_classes):
         return np.eye(num_classes)
-
-
-if __name__ == "__main__":
-    # Temporary testing location
-
-    CustomNoiseInjector(SymmetricNoiseInjector(0.4).create_noise_transition_matrix(23))
-    CustomNoiseInjector(AsymmetricNoiseInjector(0.4).create_noise_transition_matrix(44))
-
-    labels = [[i] * 100 for i in range(10)]
-    labels = np.array(labels).flatten()
-    total_cm = np.zeros((10, 10))
-    trails = 10
-    for i in range(trails):
-        noise_injector = SymmetricNoiseInjector(noise_prob=0.6, allow_equal_flips=True)
-        noisy_labels = noise_injector.apply(labels)
-        total_cm += confusion_matrix(labels, noisy_labels) / 100
-
-    print(total_cm / trails)
-
