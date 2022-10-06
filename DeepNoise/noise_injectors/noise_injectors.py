@@ -1,9 +1,21 @@
+import os.path as osp
 from copy import copy
 from typing import Dict
 
 import numpy as np
+import torch
 
 from DeepNoise.builders import NOISE_INJECTORS
+
+
+def load_from_path(path: str):
+    _, ext = osp.splitext(path)
+    if "pt" in ext:
+        return torch.load(path)
+    elif "np" in ext:
+        return np.load(path)
+    else:
+        raise NotImplementedError(f"Files with {ext} extension are not supported.")
 
 
 class NoiseInjector:
@@ -120,6 +132,14 @@ class AsymmetricNoiseInjector(NoiseInjector):
 @NOISE_INJECTORS.register("CustomMatrixNoiseInjector")
 class CustomMatrixNoiseInjector(NoiseInjector):
     def __init__(self, transition_matrix) -> None:
+        """
+        transition_matrix (iterable[iterable]): The transition matrix that will be used
+        to geenrate the noisy labels, if str it will be treated as a file path.
+        """
+
+        if isinstance(transition_matrix, str):
+            transition_matrix = load_from_path(transition_matrix)
+
         transition_matrix = np.array(transition_matrix)
         if not (
             transition_matrix.ndim == 2
@@ -150,7 +170,15 @@ class CustomMatrixNoiseInjector(NoiseInjector):
 @NOISE_INJECTORS.register("CustomLabelsNoiseInjector")
 class CustomLabelsNoiseInjector(NoiseInjector):
     def __init__(self, noisy_labels) -> None:
+        """
+        Args:
+            noisy_labels (iterable | str): The noisy labels that will replace the clean labels.
+            If str it will be treated as a file path.
+        """
         super().__init__()
+        if isinstance(noisy_labels, str):
+            noisy_labels = load_from_path(noisy_labels)
+
         self.noisy_labels = np.array(noisy_labels)
 
     def apply(self, labels, num_classes: int = None) -> np.array:
