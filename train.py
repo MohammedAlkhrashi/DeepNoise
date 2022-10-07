@@ -1,5 +1,5 @@
-from argparse import Namespace
 import argparse
+from argparse import Namespace
 from doctest import testsource
 from gc import callbacks
 from typing import List
@@ -8,9 +8,9 @@ import torch
 import torch.nn as nn
 from matplotlib import transforms
 from torch.utils.data import DataLoader
-import wandb
 
 import DeepNoise.builders as builders
+import wandb
 from DeepNoise.algorithms.base_trainer import Trainer
 from DeepNoise.builders.builders import build_cfg
 from DeepNoise.callbacks.statistics import Callback

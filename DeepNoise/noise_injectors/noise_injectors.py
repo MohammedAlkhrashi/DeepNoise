@@ -1,10 +1,21 @@
+import os.path as osp
 from copy import copy
 from typing import Dict
 
 import numpy as np
-from sklearn.metrics import confusion_matrix
+import torch
 
 from DeepNoise.builders import NOISE_INJECTORS
+
+
+def load_from_path(path: str):
+    _, ext = osp.splitext(path)
+    if "pt" in ext:
+        return torch.load(path)
+    elif "np" in ext:
+        return np.load(path)
+    else:
+        raise NotImplementedError(f"Files with {ext} extension are not supported.")
 
 
 class NoiseInjector:
@@ -13,7 +24,7 @@ class NoiseInjector:
     implement the method create_noise_transition_matrix.
     """
 
-    def apply(self, labels, num_classes: int = None):
+    def apply(self, labels, num_classes: int = None) -> np.array:
         """
         Returns noisy labels by flipping some of the given labels probabilisticly
         based on the noise transition matrix.
@@ -27,16 +38,16 @@ class NoiseInjector:
             np.array: the noisy labels
         """
         labels = np.array(labels, dtype=int)
-        noisy_labels = np.copy(labels)
         classes = np.unique(labels)
         if num_classes is None:
             num_classes = len(classes)
-
         if num_classes <= 1:
             raise ValueError(
                 f"num_classes must be greater than 1, but num_classes = {num_classes}"
             )
         t_matrix = self.create_noise_transition_matrix(num_classes)
+
+        noisy_labels = np.copy(labels)
         for i, label in enumerate(labels):
             noise_transition_row = t_matrix[label]
             noisy_labels[i] = np.random.choice(classes, p=noise_transition_row)
@@ -118,30 +129,68 @@ class AsymmetricNoiseInjector(NoiseInjector):
         return t_matrix
 
 
-@NOISE_INJECTORS.register("CustomNoise")
-class CustomNoiseInjector(NoiseInjector):
-    def __init__(self, trans_matrix) -> None:
-        self.trans_matrix = trans_matrix
+@NOISE_INJECTORS.register("CustomMatrixNoiseInjector")
+class CustomMatrixNoiseInjector(NoiseInjector):
+    def __init__(self, transition_matrix) -> None:
+        """
+        transition_matrix (iterable[iterable]): The transition matrix that will be used
+        to geenrate the noisy labels, if str it will be treated as a file path.
+        """
+
+        if isinstance(transition_matrix, str):
+            transition_matrix = load_from_path(transition_matrix)
+
+        transition_matrix = np.array(transition_matrix)
+        if not (
+            transition_matrix.ndim == 2
+            and transition_matrix.shape[0] == transition_matrix.shape[1]
+        ):
+            raise ValueError("transition_matrix must me a square matrix.")
+
+        if not (
+            np.allclose((np.sum(transition_matrix, axis=0)), 1)
+            and np.allclose((np.sum(transition_matrix, axis=1)), 1)
+        ):
+            raise ValueError(
+                "Rows and columns of the transition matrix must sum to one."
+            )
+
+        self.transition_matrix = transition_matrix
 
     def create_noise_transition_matrix(self, num_classes):
-        return self.trans_matrix
+        if num_classes > self.transition_matrix.shape[0]:
+            raise ValueError(
+                "Number of classes cannot be larger than the number"
+                " of rows of the transition matrix"
+            )
+
+        return self.transition_matrix
+
+
+@NOISE_INJECTORS.register("CustomLabelsNoiseInjector")
+class CustomLabelsNoiseInjector(NoiseInjector):
+    def __init__(self, noisy_labels) -> None:
+        """
+        Args:
+            noisy_labels (iterable | str): The noisy labels that will replace the clean labels.
+            If str it will be treated as a file path.
+        """
+        super().__init__()
+        if isinstance(noisy_labels, str):
+            noisy_labels = load_from_path(noisy_labels)
+
+        self.noisy_labels = np.array(noisy_labels)
+
+    def apply(self, labels, num_classes: int = None) -> np.array:
+        if len(labels) != len(self.noisy_labels):
+            raise ValueError(
+                f"len of the given labels ({len(labels)}) must equal the len"
+                f" of the noisy labels ({len(self.noisy_labels)})"
+            )
+        return self.noisy_labels
 
 
 @NOISE_INJECTORS.register("IdentityNoise")
 class IdentityNoiseInjector(NoiseInjector):
     def create_noise_transition_matrix(self, num_classes):
         return np.eye(num_classes)
-
-
-if __name__ == "__main__":
-    # Temporary testing location
-    labels = [[i] * 100 for i in range(10)]
-    labels = np.array(labels).flatten()
-    total_cm = np.zeros((10, 10))
-    trails = 10
-    for i in range(trails):
-        noise_injector = SymmetricNoiseInjector(noise_prob=0.6, allow_equal_flips=True)
-        noisy_labels = noise_injector.apply(labels)
-        total_cm += confusion_matrix(labels, noisy_labels) / 100
-
-    print(total_cm / trails)

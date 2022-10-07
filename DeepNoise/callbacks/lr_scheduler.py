@@ -1,6 +1,7 @@
+from torch.optim.lr_scheduler import MultiStepLR
+
 import wandb
 from DeepNoise.builders.builders import CALLBACKS
-from torch.optim.lr_scheduler import MultiStepLR
 from DeepNoise.callbacks import Callback
 
 

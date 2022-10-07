@@ -10,8 +10,8 @@ from DeepNoise.algorithms.erm import ERM
 from DeepNoise.algorithms.pencil import Pencil
 from DeepNoise.algorithms.symmetric_loss import SymmetericLossTrainer
 from DeepNoise.callbacks.statistics import Callback, SimpleStatistics
-from DeepNoise.datasets.dataset_archive import (NoisyDataset,
-                                                create_cifar10_dataset)
+from DeepNoise.datasets.cifar import NoisyCIFAR10
+from DeepNoise.noise_injectors import SymmetricNoiseInjector
 
 
 def test_all():
@@ -21,7 +21,20 @@ def test_all():
     optim = SGD(model.parameters(), 0.02, momentum=0.9, weight_decay=5e-4)
     loss_fn = nn.CrossEntropyLoss()
 
-    train_loader, val_loader, test_loader = create_cifar10_dataset()
+    train_set = NoisyCIFAR10(
+        noise_injector=SymmetricNoiseInjector(0.2),
+        root="data",
+        train=True,
+        download=True,
+    )
+
+    val_set = NoisyCIFAR10(
+        root="data",
+        train=False,
+        download=True,
+    )
+    test_set = val_set
+    train_loader = DataLoader()
 
     callbacks = [SimpleStatistics()]
 

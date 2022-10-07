@@ -1,10 +1,10 @@
 from copy import deepcopy
 from venv import create
 
+import torchvision.datasets
 from PIL import Image
 from sklearn.metrics import confusion_matrix
 from torch.utils.data import Dataset
-import torchvision.datasets
 from torchvision.transforms.transforms import Compose
 
 from DeepNoise.builders import DATASETS

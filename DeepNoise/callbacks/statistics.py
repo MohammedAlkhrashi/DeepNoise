@@ -1,8 +1,8 @@
 from typing import Dict
 
 import torch
-import wandb
 
+import wandb
 from DeepNoise.builders import CALLBACKS
 from DeepNoise.callbacks.base_callback import Callback
 
