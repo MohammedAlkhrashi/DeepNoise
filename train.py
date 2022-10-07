@@ -42,14 +42,14 @@ def main():
 
     args = parse_args()
     cfg = build_cfg(args.cfg_path)
-
-    wandb.init(project="DeepNoise", config=cfg)
-
     cfg["data"]["trainset"]["noise_injector"] = dict(
         type=args.noise_type,
         noise_prob=args.noise_prob,
         allow_equal_flips=args.allow_equal_flips,
     )  # TODO: Raise warning if cfg file alrady contains a noise injector.
+
+    wandb.init(project="DeepNoise", config=cfg)
+
     trainset = builders.build_dataset(cfg["data"]["trainset"])
     valset = builders.build_dataset(cfg["data"]["valset"])
     testset = builders.build_dataset(cfg["data"]["testset"])
