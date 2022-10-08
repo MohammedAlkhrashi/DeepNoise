@@ -1,12 +1,15 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.optim import Optimizer
-from torch.autograd import Variable
 import numpy as np
-from DeepNoise.algorithms.base_trainer import Trainer
-from DeepNoise.builders import build_model
+import itertools
+from torch.utils.data import DataLoader
+from torch.optim import Optimizer
+from typing import List
 from dataclasses import dataclass
+from DeepNoise.algorithms.base_trainer import Trainer
+from DeepNoise.callbacks import Callback
+from DeepNoise.builders import TRAINERS, MODELS, OPTIMIZERS, build_optimizer
 
 
 class CoTeachingLoss(nn.Module):
@@ -32,12 +35,11 @@ class CoTeachingLoss(nn.Module):
         )
 
 
+@MODELS.register()
+@dataclass
 class CoTeachingModel(nn.Module):
-    def __init__(
-        self, model_1_config: dict, model_2_config: dict, num_classes: int = None
-    ):
-        self.model_1 = build_model(model_1_config, num_classes)
-        self.model_2 = build_model(model_2_config, num_classes)
+    model_1: nn.Module
+    model_2: nn.Module
 
     def forward(self, x):
         return self.model_1(x), self.model_2(x)
@@ -51,13 +53,16 @@ class CoTeachingModel(nn.Module):
         self.model_2.eval()
 
 
-@dataclass
-class CoTeachingOptimizers:
-    optimizer_1: Optimizer
-    optimizer_2: Optimizer
+@OPTIMIZERS.register()
+class CoTeachingOptimizers(Optimizer):
+    def __init__(self, optim_1_cfg, optim_2_cfg, params):
+        params_1, params_2 = itertools.tee(params)
+        self.optimizer_1 = build_optimizer(optim_1_cfg, params_1)
+        self.optimizer_2 = build_optimizer(optim_2_cfg, params_2)
 
 
-class CoTeachingTrainer(ERM):
+@TRAINERS.register("Co-Teaching")
+class CoTeachingTrainer(Trainer):
     def __init__(
         self,
         model: CoTeachingModel,

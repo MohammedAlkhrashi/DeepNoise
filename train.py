@@ -29,10 +29,10 @@ def str2bool(v):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--cfg_path", type=str)
-    parser.add_argument("--noise_type", type=str, default="SymmetricNoise")
-    parser.add_argument("--noise_prob", type=float, default=0)
-    parser.add_argument("--allow_equal_flips", type=str2bool, default=True)
+    parser.add_argument("--cfg-path", type=str)
+    parser.add_argument("--noise-type", type=str, default="SymmetricNoise")
+    parser.add_argument("--noise-prob", type=float, default=0)
+    parser.add_argument("--allow-equal-flips", type=str2bool, default=True)
 
     args = parser.parse_args()
     return args
@@ -79,7 +79,7 @@ def main():
         cfg["model"], num_classes=cfg["num_classes"]
     )
     optimizer: torch.optim.Optimizer = builders.build_optimizer(
-        cfg["optimizer"], model=model
+        cfg["optimizer"], params=model.parameters()
     )
     loss_fn: nn.Module = builders.build_loss(cfg["loss_fn"])
     callbacks: List[Callback] = [

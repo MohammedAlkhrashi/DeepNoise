@@ -69,8 +69,8 @@ def build_callbacks(cfg, **kwargs):
     return _from_registry(CALLBACKS, combined_cfg)
 
 
-def build_optimizer(cfg, model: nn.Module):
-    cfg["params"] = model.parameters()
+def build_optimizer(cfg, params):
+    cfg["params"] = params
     if cfg["type"] not in OPTIMIZERS:
         import torch.optim
 
