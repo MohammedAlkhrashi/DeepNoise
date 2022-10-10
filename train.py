@@ -43,18 +43,20 @@ def main():
     args = parse_args()
     cfg = build_cfg(args.cfg_path)
 
-    wandb.init(project="DeepNoise", config=cfg)
-
     if "noise_injector" in cfg["data"]["trainset"]:
         print(
             "WARNING: the noise_injector setting in the config file will be overwritten"
             " by the noise_settings passed from the command line arguments."
         )
+
     cfg["data"]["trainset"]["noise_injector"] = dict(
         type=args.noise_type,
         noise_prob=args.noise_prob,
         allow_equal_flips=args.allow_equal_flips,
     )
+
+    wandb.init(project="DeepNoise", config=cfg)
+
     trainset = builders.build_dataset(cfg["data"]["trainset"])
     valset = builders.build_dataset(cfg["data"]["valset"])
     testset = builders.build_dataset(cfg["data"]["testset"])
