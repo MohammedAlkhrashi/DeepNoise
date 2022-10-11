@@ -17,21 +17,21 @@ class ERM(Trainer):
         model: nn.Module,
         optimizer: Optimizer,
         loss_fn: nn.Module,
-        train_loader: DataLoader,
-        val_loader: DataLoader,
-        test_loader: DataLoader,
         epochs: int,
+        train_loader: DataLoader,
+        val_loader: DataLoader = None,
+        test_loader: DataLoader = None,
         callbacks: List[Callback] = None,
     ) -> None:
         super().__init__(
-            model,
-            optimizer,
-            loss_fn,
-            train_loader,
-            val_loader,
-            test_loader,
-            epochs,
-            callbacks,
+            model=model,
+            optimizer=optimizer,
+            loss_fn=loss_fn,
+            train_loader=train_loader,
+            val_loader=val_loader,
+            test_loader=test_loader,
+            epochs=epochs,
+            callbacks=callbacks,
         )
 
     def step(self, batch):

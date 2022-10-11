@@ -3,10 +3,18 @@ from typing import List
 import torch
 import torch.nn as nn
 from torch.optim import Optimizer
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 
 from DeepNoise.callbacks.statistics import Callback
+
+
+def _empty_loader():
+    class EmptyDataset(Dataset):
+        def __len__(self):
+            return 0
+
+    return DataLoader(EmptyDataset())
 
 
 class Trainer:
@@ -15,10 +23,10 @@ class Trainer:
         model: nn.Module,
         optimizer: Optimizer,
         loss_fn: nn.Module,
-        train_loader: DataLoader,
-        val_loader: DataLoader,
-        test_loader: DataLoader,
         epochs: int,
+        train_loader: DataLoader,
+        val_loader: DataLoader = None,
+        test_loader: DataLoader = None,
         callbacks: List[Callback] = None,
     ) -> None:
         self.model = model
@@ -26,8 +34,8 @@ class Trainer:
         self.loss_fn = loss_fn
 
         self.train_loader = train_loader
-        self.val_loader = val_loader
-        self.test_loader = test_loader
+        self.val_loader = val_loader if val_loader is not None else _empty_loader()
+        self.test_loader = test_loader if test_loader is not None else _empty_loader()
         self.epochs = epochs
 
         self.callbacks = callbacks
@@ -74,6 +82,7 @@ class Trainer:
             loader,
             desc=f"Running {self.epoch_mode.capitalize()}, Epoch: {epoch}",
             leave=True,
+            disable=len(loader) == 0,
         ):
             self.step(batch)
 

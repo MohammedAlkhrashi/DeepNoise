@@ -3,7 +3,6 @@ from copy import deepcopy
 
 import torch.nn as nn
 import torchvision.transforms.transforms
-from cv2 import transform
 
 from DeepNoise.builders.registry import Registry
 

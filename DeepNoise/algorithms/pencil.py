@@ -48,10 +48,8 @@ class Pencil(Trainer):
         self,
         model: nn.Module,
         optimizer: Optimizer,
-        train_loader: DataLoader,
-        val_loader: DataLoader,
-        test_loader: DataLoader,
         epochs: int,
+        train_loader: DataLoader,
         callbacks: List[Callback],
         training_labels: Union[Iterable, str],
         labels_lr: float,
@@ -59,6 +57,8 @@ class Pencil(Trainer):
         beta: float,
         stages: List[int],
         num_classes: int,
+        val_loader: DataLoader = None,
+        test_loader: DataLoader = None,
         ignore_passed_loss_fn=False,
         **kwargs,
     ) -> None:
@@ -92,14 +92,14 @@ class Pencil(Trainer):
 
         loss_fn = SoftCrossEntropyLoss()
         super().__init__(
-            model,
-            optimizer,
-            loss_fn,
-            train_loader,
-            val_loader,
-            test_loader,
-            epochs,
-            callbacks,
+            model=model,
+            optimizer=optimizer,
+            loss_fn=loss_fn,
+            train_loader=train_loader,
+            val_loader=val_loader,
+            test_loader=test_loader,
+            epochs=epochs,
+            callbacks=callbacks,
         )
         if isinstance(training_labels, str):
             training_labels = getattr(self.train_loader.dataset, training_labels)
