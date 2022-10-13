@@ -15,7 +15,7 @@
 <hr />
 
 <p align="center">
-Deep noise is a PyTorch framework for learning with noisy lables in the context of deep learning. It contains implementation for famous algorithms for learning from noisy labels.
+Deep noise is a PyTorch framework for learning with noisy labels in the context of deep learning. It provides implementations for well-known algorithms, common datasets in the literature, and noise-related utilities for learning from noisy labels.
 
 </p>
 
