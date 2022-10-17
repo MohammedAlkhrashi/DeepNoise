@@ -82,7 +82,7 @@ trainer = SymmetericLossTrainer(
     optimizer=optimizer,
     train_loader=train_loader,
     val_loader=test_loader,
-    epochs=120,
+    epochs=epochs,
     callbacks=callbacks,
 )
 ```
