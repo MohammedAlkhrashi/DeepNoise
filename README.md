@@ -60,7 +60,7 @@ test_set = NoisyCIFAR10(
 )
 ```
 
-### 3. Define callbacks and initilizae wandb
+### 3. Define callbacks and initialize wandb
 
 ```python
 from DeepNoise.callbacks.lr_scheduler import StepLRScheduler
