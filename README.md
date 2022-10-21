@@ -37,14 +37,24 @@ pip install -r requriments.txt
 
 ### Usage
 
-### 1. Define a noise injection strategy
+#### Through the provided training tool and config files
+```bash
+cd DeepNoise
+python train.py --cfg_path configs/algorithms/default_sl.py
+```
+
+#### or
+
+#### Through framework API:
+
+#### 1. Define a noise injection strategy
 
 ```python
 from DeepNoise.noise_injectors import SymmetricNoiseInjector
 noise_injector = SymmetricNoiseInjector(noise_prob=0.4)
 ```
 
-### 2. Define a torch dataset
+#### 2. Define a torch dataset
 
 ```python
 from DeepNoise.datasets.cifar import NoisyCIFAR10
@@ -60,7 +70,7 @@ test_set = NoisyCIFAR10(
 )
 ```
 
-### 3. Define callbacks and initialize wandb
+#### 3. Define callbacks and initialize wandb
 
 ```python
 from DeepNoise.callbacks.lr_scheduler import StepLRScheduler
@@ -73,7 +83,7 @@ callbacks = [
 wandb.init(project="DeepNoise")
 ```
 
-### 4. Define a trainer
+#### 4. Define a trainer
 
 ```python
 from DeepNoise.algorithms.symmetric_loss import SymmetericLossTrainer
