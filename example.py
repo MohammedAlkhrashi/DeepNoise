@@ -47,6 +47,7 @@ def main():
         train=False, download=True, transforms=test_transforms, root="data/cifar10"
     )
 
+    epochs = 120
     batch_size = 16
     num_workers = 4
     train_loader = DataLoader(
@@ -78,7 +79,7 @@ def main():
         optimizer=optimizer,
         train_loader=train_loader,
         val_loader=test_loader,
-        epochs=120,
+        epochs=epochs,
         callbacks=callbacks,
     )
     trainer.start()
